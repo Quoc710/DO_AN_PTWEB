@@ -1,0 +1,72 @@
+# =====================================================================
+# Git Ignore - Cửa Hàng Vải (DO_AN_PTWEB)
+# =====================================================================
+
+# 1. Environment & Secrets (Bảo mật thông tin cấu hình)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# 2. Dependencies (Thư viện phụ thuộc)
+# Composer (PHP)
+vendor/
+backend/vendor/
+composer.phar
+
+# Node.js / NPM / Frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+
+# 3. IDEs & Editors (Cấu hình môi trường của lập trình viên)
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains (PhpStorm, IntelliJ, WebStorm)
+.idea/
+
+# 4. Logs & Storage (File nhật ký & lưu trữ tạm)
+*.log
+backend/storage/logs/*.log
+backend/storage/mail_logs/*
+!backend/storage/mail_logs/.gitkeep
+backend/storage/cache/*
+!backend/storage/cache/.gitkeep
+!backend/storage/logs/.gitkeep
+
+# 5. OS & Temporary files (Hệ điều hành & file tạm thời)
+Thumbs.db
+Desktop.ini
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+ehthumbs_vista.db
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# Local Development Junctions/Symlinks
+backend/public/frontend
+

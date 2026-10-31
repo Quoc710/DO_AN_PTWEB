@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>AURA MINIMAL - Đơn hàng của tôi (Lịch sử & Theo dõi)</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body { overscroll-behavior: none; }
+      main > :first-child { margin-top: 0 !important; }
+      main > :last-child { margin-bottom: 0 !important; }
+    }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "error": "#ba1a1a",
+            "surface": "#fbf8ff",
+            "surface-container-highest": "#e2e1f4",
+            "inverse-surface": "#2f2f3e",
+            "surface-tint": "#5e5d69",
+            "background": "#fbf8ff",
+            "tertiary-fixed": "#f0e0ca",
+            "tertiary-fixed-dim": "#d3c5af",
+            "error-container": "#ffdad6",
+            "surface-container-high": "#e8e6f9",
+            "outline": "#78767c",
+            "on-secondary-container": "#5f626f",
+            "secondary-container": "#dddfef",
+            "surface-bright": "#fbf8ff",
+            "primary": "#000000",
+            "on-primary": "#ffffff",
+            "on-tertiary-fixed-variant": "#4f4535",
+            "on-tertiary-fixed": "#221a0d",
+            "primary-fixed-dim": "#c7c5d3",
+            "secondary-fixed": "#dfe2f1",
+            "primary-fixed": "#e4e1ef",
+            "tertiary": "#000000",
+            "surface-dim": "#dad8eb",
+            "surface-container-low": "#f5f2ff",
+            "surface-container": "#eeecff",
+            "on-primary-fixed": "#1b1b25",
+            "inverse-primary": "#c7c5d3",
+            "secondary-fixed-dim": "#c3c6d5",
+            "outline-variant": "#c8c5cc",
+            "on-surface": "#1a1a28",
+            "on-tertiary-container": "#8e826f",
+            "surface-variant": "#e2e1f4",
+            "on-background": "#1a1a28",
+            "on-error": "#ffffff",
+            "primary-container": "#1b1b25",
+            "on-secondary-fixed": "#181b26",
+            "on-secondary-fixed-variant": "#434653",
+            "on-error-container": "#93000a",
+            "on-primary-container": "#84828f",
+            "on-surface-variant": "#47464b",
+            "on-tertiary": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "tertiary-container": "#221a0d",
+            "secondary": "#5b5e6b",
+            "on-primary-fixed-variant": "#464651"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin-sm": "1rem",
+            "margin": "2rem",
+            "margin-lg": "4rem",
+            "space-xs": "0.25rem",
+            "space-md": "1rem",
+            "space-sm": "0.5rem",
+            "gutter": "1.5rem",
+            "gutter-sm": "1rem",
+            "space-lg": "1.5rem",
+            "space-xl": "2.5rem"
+          },
+          "fontFamily": {
+            "headline-sm": ["Be Vietnam Pro", "sans-serif"],
+            "label-code-md": ["JetBrains Mono", "monospace"],
+            "headline-lg": ["Be Vietnam Pro", "sans-serif"],
+            "headline-md": ["Be Vietnam Pro", "sans-serif"],
+            "body-sm": ["Be Vietnam Pro", "sans-serif"],
+            "caption": ["Be Vietnam Pro", "sans-serif"],
+            "label-code-sm": ["JetBrains Mono", "monospace"],
+            "body-lg": ["Be Vietnam Pro", "sans-serif"],
+            "body-md": ["Be Vietnam Pro", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-background font-body-md text-on-surface antialiased min-h-screen">
+  
+  <!-- Sidebar -->
+  <aside class="fixed top-0 left-0 bottom-0 w-[220px] bg-surface-container-lowest border-r border-outline-variant/40 z-40 flex flex-col justify-between">
+    <div class="flex flex-col">
+      <div class="h-16 px-space-lg flex items-center gap-space-sm border-b border-outline-variant/20">
+        <div class="w-6 h-6 rounded bg-primary flex items-center justify-center text-on-primary font-headline-sm text-sm">A</div>
+        <span class="font-headline-sm text-base text-on-surface tracking-tight font-semibold">Aura Minimal</span>
+      </div>
+      <nav class="px-space-sm pt-space-md flex flex-col gap-space-xs">
+        <a class="flex items-center px-space-md py-space-sm text-secondary hover:bg-surface-container-high hover:text-on-surface font-medium rounded-lg text-sm transition-colors" href="../../Tai_khoan/pages/dashboard.html">
+          <span class="material-symbols-outlined text-[20px] mr-space-sm">account_circle</span>Tài khoản của tôi
+        </a>
+        <a class="flex items-center px-space-md py-space-sm bg-primary text-on-primary font-medium rounded-lg text-sm transition-colors" href="don_hang.html">
+          <span class="material-symbols-outlined text-[20px] mr-space-sm">inventory_2</span>Đơn hàng của tôi
+        </a>
+      </nav>
+    </div>
+    <div class="p-space-md">
+      <div class="px-space-md py-space-sm rounded-lg bg-surface-container-low flex items-center gap-space-sm border border-outline-variant/20">
+        <span class="w-2 h-2 rounded-full bg-secondary"></span>
+        <span class="font-caption text-xs text-secondary">Cổng khách hàng v1.0</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="pl-[220px]">
+    
+    <!-- Top Header -->
+    <header class="fixed top-0 left-[220px] right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant/30 z-30 flex items-center justify-between px-space-xl">
+      <div class="flex items-center gap-space-xs font-label-code-sm text-xs text-on-surface-variant">
+        <span>AURA</span>
+        <span>/</span>
+        <span>KHÁCH HÀNG</span>
+        <span>/</span>
+        <span class="text-primary font-medium">LỊCH SỬ & THEO DÕI</span>
+      </div>
+      
+      <!-- User Menu Dropdown -->
+      <div class="relative flex items-center gap-space-md">
+        <button id="user-menu-btn" onclick="toggleUserDropdown()" aria-expanded="false" class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary hover:bg-surface-variant transition-colors" type="button">
+          <span class="material-symbols-outlined text-on-primary text-[18px]">person</span>
+        </button>
+        
+        <div id="user-dropdown" class="hidden absolute right-0 top-12 w-64 bg-surface-container-lowest rounded-lg border border-outline-variant/40 shadow-lg p-space-md z-50">
+          <div class="pb-space-sm">
+            <p class="font-headline-sm text-sm text-on-surface font-semibold leading-tight" id="header-user-name">Đang tải...</p>
+            <p class="font-caption text-xs text-secondary font-label-code-sm" id="header-user-email">@username</p>
+          </div>
+          <div class="h-px bg-outline-variant/30 my-space-xs"></div>
+          <div class="flex flex-col py-space-xs">
+            <a class="px-space-sm py-space-xs rounded font-body-sm text-xs text-secondary hover:bg-surface-container-high hover:text-on-surface transition-colors" href="../../Tai_khoan/pages/dashboard.html">Hồ sơ của tôi</a>
+            <a class="px-space-sm py-space-xs rounded font-body-sm text-xs text-primary font-medium bg-surface-container-low transition-colors" href="don_hang.html">Đơn mua của tôi</a>
+          </div>
+          <div class="h-px bg-outline-variant/30 my-space-xs"></div>
+          <a class="flex items-center gap-space-xs px-space-sm py-space-xs rounded font-body-sm text-xs text-error hover:bg-error-container transition-colors" href="../../Tai_khoan/pages/auth.html" onclick="handleLogout()">
+            <span class="material-symbols-outlined text-[16px]">logout</span>Đăng xuất
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="relative pt-20 w-full max-w-[1220px] mx-auto px-space-xl py-space-lg min-h-screen">
+      <div class="flex flex-col w-full">
+        
+        <!-- Top Navigation & Header Meta -->
+        <div class="flex flex-col mb-space-lg">
+          <div class="flex items-center gap-space-xs font-label-code-sm text-xs text-secondary tracking-wider mb-space-xs">
+            <span>ĐƠN HÀNG</span>
+            <span>/</span>
+            <span class="text-on-surface font-medium">LỊCH SỬ & THEO DÕI</span>
+          </div>
+          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-space-md">
+            <div>
+              <h1 class="font-headline-lg text-2xl text-on-surface font-semibold tracking-tight">Đơn hàng của tôi</h1>
+              <p class="font-body-sm text-sm text-secondary mt-1">
+                Xem danh sách đơn hàng đã mua và biết đơn đang ở trạng thái nào (Chờ xác nhận, Đang giao)
+              </p>
+            </div>
+            
+            <!-- Quick Summary Stat Capsule -->
+            <div class="flex items-center gap-space-sm bg-surface-container-low px-space-md py-space-xs rounded-xl self-start sm:self-auto border border-outline-variant/20">
+              <span class="w-2 h-2 rounded-full bg-primary animate-pulse" id="processing-pulse"></span>
+              <span class="font-caption text-xs text-secondary">
+                Đang xử lý / giao: <strong class="font-label-code-sm text-on-surface font-semibold" id="active-orders-count">0 kiện</strong>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status Filter Chips Bar -->
+        <div class="flex items-center gap-space-xs sm:gap-space-sm overflow-x-auto pb-space-xs mb-space-lg select-none" id="filterChipsContainer">
+          <button class="order-filter-btn flex items-center gap-space-xs px-space-md py-1.5 rounded-full bg-primary text-on-primary font-body-sm text-xs font-medium transition-all" data-status="all" onclick="setFilter('all')">
+            <span>Tất cả</span>
+            <span class="font-label-code-sm text-xs px-1.5 py-0.2 bg-on-primary/20 rounded-full" id="count-all">0</span>
+          </button>
+          <button class="order-filter-btn flex items-center gap-space-xs px-space-md py-1.5 rounded-full bg-surface-container-lowest text-secondary hover:text-on-surface hover:bg-surface-container-high font-body-sm text-xs transition-all border border-outline-variant/30" data-status="pending" onclick="setFilter('pending')">
+            <span>Chờ xác nhận</span>
+            <span class="font-label-code-sm text-xs px-1.5 py-0.2 bg-secondary-container text-on-secondary-container rounded-full" id="count-pending">0</span>
+          </button>
+          <button class="order-filter-btn flex items-center gap-space-xs px-space-md py-1.5 rounded-full bg-surface-container-lowest text-secondary hover:text-on-surface hover:bg-surface-container-high font-body-sm text-xs transition-all border border-outline-variant/30" data-status="shipping" onclick="setFilter('shipping')">
+            <span>Đang giao</span>
+            <span class="font-label-code-sm text-xs px-1.5 py-0.2 bg-secondary-container text-on-secondary-container rounded-full" id="count-shipping">0</span>
+          </button>
+          <button class="order-filter-btn flex items-center gap-space-xs px-space-md py-1.5 rounded-full bg-surface-container-lowest text-secondary hover:text-on-surface hover:bg-surface-container-high font-body-sm text-xs transition-all border border-outline-variant/30" data-status="completed" onclick="setFilter('completed')">
+            <span>Đã giao</span>
+            <span class="font-label-code-sm text-xs px-1.5 py-0.2 bg-secondary-container text-on-secondary-container rounded-full" id="count-completed">0</span>
+          </button>
+          <button class="order-filter-btn flex items-center gap-space-xs px-space-md py-1.5 rounded-full bg-surface-container-lowest text-secondary hover:text-on-surface hover:bg-surface-container-high font-body-sm text-xs transition-all border border-outline-variant/30" data-status="cancelled" onclick="setFilter('cancelled')">
+            <span>Đã hủy</span>
+            <span class="font-label-code-sm text-xs px-1.5 py-0.2 bg-secondary-container text-on-secondary-container rounded-full" id="count-cancelled">0</span>
+          </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="mb-space-md flex items-center gap-space-sm bg-surface-container-lowest p-2 px-space-md rounded-xl border border-outline-variant/30 shadow-sm">
+          <span class="material-symbols-outlined text-[18px] text-secondary">search</span>
+          <input id="search-input" type="text" placeholder="Tìm theo Mã đơn hàng (#PB), tên sản phẩm, số điện thoại..." class="bg-transparent text-xs w-full focus:outline-none text-on-surface placeholder:text-secondary font-body-md" oninput="debounceSearch()">
+          <button onclick="clearSearch()" class="text-xs text-secondary hover:text-on-surface px-2 py-1">Xóa</button>
+        </div>
+
+        <!-- Orders Stack List (Rendered dynamically from DB) -->
+        <div class="flex flex-col gap-space-md w-full" id="ordersList">
+          <!-- Loading skeleton -->
+          <div class="p-space-xl bg-surface-container-lowest rounded-xl border border-outline-variant/30 flex items-center justify-center gap-space-sm text-secondary">
+            <span class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
+            <span class="text-sm font-medium">Đang tải lịch sử đơn hàng từ cơ sở dữ liệu...</span>
+          </div>
+        </div>
+
+        <!-- Empty State Banner -->
+        <div class="hidden flex-col items-center justify-center p-space-xl bg-surface-container-lowest rounded-xl text-center my-space-md border border-outline-variant/20 py-12" id="emptyOrdersState">
+          <div class="w-16 h-16 rounded-full bg-secondary-container/50 flex items-center justify-center text-secondary mb-space-md">
+            <span class="material-symbols-outlined text-[32px]">inventory_2</span>
+          </div>
+          <h3 class="font-headline-md text-base text-on-surface font-semibold mb-space-xs">Chưa có đơn hàng nào ở trạng thái này</h3>
+          <p class="font-body-sm text-xs text-secondary max-w-md mb-space-lg">
+            Mọi kiện hàng bạn đặt sẽ tự động cập nhật lộ trình giao nhận và trạng thái tại đây.
+          </p>
+          <a class="inline-flex items-center gap-space-xs px-space-lg py-space-sm rounded-lg bg-primary text-on-primary font-body-sm text-xs font-medium hover:bg-inverse-surface transition-colors" href="javascript:void(0)" onclick="setFilter('all')">
+            <span>Xem tất cả đơn hàng</span>
+            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </a>
+        </div>
+
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const currentHost = window.location.hostname || 'localhost';
+    const API_BASE = `http://${currentHost}:8000`;
+    let currentFilter = 'all';
+    let searchTimeout = null;
+
+    function formatMoney(amount) {
+      const num = Number(amount) || 0;
+      return new Intl.NumberFormat('vi-VN').format(num) + '₫';
+    }
+
+    function formatNumber(num) {
+      return new Intl.NumberFormat('vi-VN').format(Number(num) || 0);
+    }
+
+    function toggleUserDropdown() {
+      const dropdown = document.getElementById('user-dropdown');
+      if (dropdown) dropdown.classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', (e) => {
+      const btn = document.getElementById('user-menu-btn');
+      const dropdown = document.getElementById('user-dropdown');
+      if (btn && dropdown && !btn.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.add('hidden');
+      }
+    });
+
+    function handleLogout() {
+      localStorage.removeItem('aura_user');
+      localStorage.removeItem('aura_token');
+      window.location.href = '../../Tai_khoan/pages/auth.html';
+    }
+
+    function toggleOrderDetail(detailId, chevronId) {
+      const detailEl = document.getElementById(detailId);
+      const chevronEl = document.getElementById(chevronId);
+      if (!detailEl || !chevronEl) return;
+
+      if (detailEl.classList.contains('hidden')) {
+        detailEl.classList.remove('hidden');
+        chevronEl.classList.add('rotate-180');
+      } else {
+        detailEl.classList.add('hidden');
+        chevronEl.classList.remove('rotate-180');
+      }
+    }
+
+    function setFilter(status) {
+      currentFilter = status;
+      // Cập nhật giao diện tabs
+      document.querySelectorAll('.order-filter-btn').forEach(btn => {
+        const btnStatus = btn.getAttribute('data-status');
+        if (btnStatus === status) {
+          btn.className = 'order-filter-btn flex items-center gap-space-xs px-space-md py-1.5 rounded-full bg-primary text-on-primary font-body-sm text-xs font-medium transition-all';
+        } else {
+          btn.className = 'order-filter-btn flex items-center gap-space-xs px-space-md py-1.5 rounded-full bg-surface-container-lowest text-secondary hover:text-on-surface hover:bg-surface-container-high font-body-sm text-xs transition-all border border-outline-variant/30';
+        }
+      });
+
+      loadOrders();
+    }
+
+    function debounceSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        loadOrders();
+      }, 350);
+    }
+
+    function clearSearch() {
+      document.getElementById('search-input').value = '';
+      loadOrders();
+    }
+
+    // Render Badge trạng thái dựa trên trường TrangThai trong DB
+    function renderStatusBadge(status) {
+      if (status === 'Đang giao') {
+        return `
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-secondary-container text-on-surface font-body-sm text-xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
+            <span class="font-medium text-primary">Đang giao</span>
+          </div>
+        `;
+      } else if (status === 'Chờ xác nhận') {
+        return `
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-tertiary-fixed text-on-tertiary-fixed font-body-sm text-xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+            <span class="font-medium">Chờ xác nhận</span>
+          </div>
+        `;
+      } else if (status === 'Đã giao') {
+        return `
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-surface-container-low text-on-surface font-body-sm text-xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>
+            <span class="font-medium text-green-700">Đã giao</span>
+          </div>
+        `;
+      } else if (status === 'Đã hủy') {
+        return `
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-error-container text-error font-body-sm text-xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+            <span class="font-medium">Đã hủy</span>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-surface-container-low text-secondary font-body-sm text-xs">
+          <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+          <span>${status || 'Chờ xử lý'}</span>
+        </div>
+      `;
+    }
+
+    // Render Timeline theo dõi theo trạng thái thực tế
+    function renderTrackingTimeline(status, orderDate) {
+      const isPending = status === 'Chờ xác nhận';
+      const isShipping = status === 'Đang giao';
+      const isCompleted = status === 'Đã giao';
+      const isCancelled = status === 'Đã hủy';
+
+      if (isCancelled) {
+        return `
+          <div class="p-space-md rounded-xl bg-error-container/20 border border-error-container/40 flex flex-col gap-2">
+            <div class="flex items-center gap-2 text-error font-medium text-xs">
+              <span class="material-symbols-outlined text-[18px]">cancel</span>
+              <span>Đơn hàng đã hủy</span>
+            </div>
+            <p class="text-xs text-secondary">
+              Đơn hàng này đã được hủy vào ngày ${orderDate}. Nếu bạn đã thanh toán, số tiền sẽ được hoàn trả theo chính sách cửa hàng.
+            </p>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="relative flex flex-col pl-3 pt-2">
+          <!-- Continuous Guide Line Behind Nodes -->
+          <div class="absolute left-[23px] top-[14px] bottom-[28px] w-0.5 bg-outline-variant/40 z-0"></div>
+
+          <!-- Step 1: Placed -->
+          <div class="relative z-10 flex items-start gap-space-md pb-space-lg">
+            <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary shrink-0 shadow-sm ring-4 ring-surface-container-low">
+              <span class="material-symbols-outlined text-[14px]">check</span>
+            </div>
+            <div class="flex flex-col -mt-0.5 min-w-0">
+              <p class="font-headline-sm text-xs font-semibold text-on-surface">Đã đặt hàng – chờ xác nhận</p>
+              <p class="font-label-code-sm text-[11px] text-secondary mt-0.5">${orderDate}</p>
+            </div>
+          </div>
+
+          <!-- Step 2: Confirmed -->
+          <div class="relative z-10 flex items-start gap-space-md pb-space-lg">
+            <div class="w-6 h-6 rounded-full ${!isPending ? 'bg-primary text-on-primary' : 'bg-surface-container-highest text-secondary'} flex items-center justify-center shrink-0 ring-4 ring-surface-container-low">
+              <span class="material-symbols-outlined text-[14px]">${!isPending ? 'check' : 'hourglass_empty'}</span>
+            </div>
+            <div class="flex flex-col -mt-0.5 min-w-0 ${isPending ? 'opacity-70' : ''}">
+              <p class="font-headline-sm text-xs font-semibold text-on-surface">Đã xác nhận đơn hàng</p>
+              <p class="font-label-code-sm text-[11px] text-secondary mt-0.5">${!isPending ? 'Hệ thống đã xác nhận đơn' : 'Đang chờ bộ phận kho duyệt'}</p>
+            </div>
+          </div>
+
+          <!-- Step 3: Shipping -->
+          <div class="relative z-10 flex items-start gap-space-md pb-space-lg">
+            <div class="relative w-6 h-6 rounded-full ${isShipping || isCompleted ? 'bg-primary text-on-primary' : 'bg-surface-container-highest text-secondary'} flex items-center justify-center shrink-0 ring-4 ring-surface-container-low">
+              <span class="material-symbols-outlined text-[14px]">local_shipping</span>
+              ${isShipping ? '<span class="absolute -inset-1 rounded-full bg-primary/20 animate-ping"></span>' : ''}
+            </div>
+            <div class="flex flex-col -mt-0.5 min-w-0 ${!isShipping && !isCompleted ? 'opacity-60' : ''}">
+              <div class="flex items-center gap-space-xs">
+                <p class="font-headline-sm text-xs text-on-surface font-semibold">Đang giao hàng</p>
+                ${isShipping ? '<span class="px-1.5 py-0.2 bg-primary text-on-primary rounded font-caption text-[10px]">Hiện tại</span>' : ''}
+              </div>
+              <p class="font-label-code-sm text-[11px] text-secondary mt-0.5">
+                ${isShipping ? 'Kiện hàng đang trên đường vận chuyển tới quý khách' : (isCompleted ? 'Đã hoàn tất vận chuyển' : 'Chuẩn bị xuất kho')}
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 4: Completed -->
+          <div class="relative z-10 flex items-start gap-space-md">
+            <div class="w-6 h-6 rounded-full ${isCompleted ? 'bg-green-600 text-white' : 'bg-surface-container-highest text-secondary'} flex items-center justify-center shrink-0 ring-4 ring-surface-container-low">
+              <span class="material-symbols-outlined text-[14px]">${isCompleted ? 'done_all' : 'check'}</span>
+            </div>
+            <div class="flex flex-col -mt-0.5 min-w-0 ${!isCompleted ? 'opacity-60' : ''}">
+              <p class="font-headline-sm text-xs text-on-surface font-semibold">Đã giao thành công</p>
+              <p class="font-label-code-sm text-[11px] text-secondary mt-0.5">
+                ${isCompleted ? 'Khách hàng đã nhận hàng thành công' : 'Dự kiến sau khi xuất kho'}
+              </p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadOrders() {
+      const container = document.getElementById('ordersList');
+      const emptyState = document.getElementById('emptyOrdersState');
+      const q = document.getElementById('search-input').value.trim();
+
+      let url = `${API_BASE}/api/don-hang?status=${encodeURIComponent(currentFilter)}`;
+      if (q) url += `&q=${encodeURIComponent(q)}`;
+
+      try {
+        const res = await fetch(url);
+        const result = await res.json();
+
+        if (!res.ok || result.status !== 'success') {
+          throw new Error(result.message || 'Lỗi kết nối máy chủ.');
+        }
+
+        const data = result.data;
+        const orders = data.orders || [];
+        const stats = data.stats || {};
+        const counts = stats.statusCounts || {};
+
+        // Cập nhật số đếm trên các filter chips
+        if (counts.all !== undefined) document.getElementById('count-all').textContent = counts.all;
+        if (counts.pending !== undefined) document.getElementById('count-pending').textContent = counts.pending;
+        if (counts.shipping !== undefined) document.getElementById('count-shipping').textContent = counts.shipping;
+        if (counts.completed !== undefined) document.getElementById('count-completed').textContent = counts.completed;
+        if (counts.cancelled !== undefined) document.getElementById('count-cancelled').textContent = counts.cancelled;
+
+        // Cập nhật capsule "Đang xử lý / giao"
+        const activeCount = (counts.pending || 0) + (counts.shipping || 0);
+        document.getElementById('active-orders-count').textContent = `${activeCount < 10 ? '0' + activeCount : activeCount} kiện`;
+
+        if (orders.length === 0) {
+          container.innerHTML = '';
+          emptyState.classList.remove('hidden');
+          emptyState.classList.add('flex');
+          return;
+        }
+
+        emptyState.classList.add('hidden');
+        emptyState.classList.remove('flex');
+
+        let html = '';
+        orders.forEach((order, idx) => {
+          const detailId = `order-detail-${order.MaPhieuBan}`;
+          const chevronId = `chevron-${order.MaPhieuBan}`;
+          const items = order.ChiTiet || [];
+          const vouchers = order.Vouchers || [];
+          const returns = order.PhieuTra || [];
+          const status = order.TrangThai || 'Chờ xác nhận';
+          const isFirstCard = idx === 0;
+
+          // Chuỗi tóm tắt sản phẩm
+          const summaryStr = items.map(i => `${i.TenSP} x${formatNumber(i.SoLuongBan)}`).join(', ') || 'Vải thành phẩm';
+
+          html += `
+            <div class="order-card group bg-surface-container-lowest rounded-xl p-space-md sm:p-space-lg transition-all duration-200 border border-outline-variant/30 shadow-sm hover:border-outline-variant/60" data-order-status="${status}">
+              
+              <!-- Card Summary Header -->
+              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md pb-space-md cursor-pointer select-none" onclick="toggleOrderDetail('${detailId}', '${chevronId}')">
+                <div class="flex flex-wrap items-center gap-x-space-md gap-y-space-xs">
+                  <div class="flex items-center gap-space-xs">
+                    <span class="font-label-code-md text-sm font-semibold text-on-surface">#ORD-${order.MaPhieuBan}</span>
+                    <span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+                    <span class="font-caption text-xs text-secondary font-label-code-sm">${order.NgayBan}</span>
+                  </div>
+
+                  <!-- Semantic Badge -->
+                  ${renderStatusBadge(status)}
+
+                  <div class="hidden xl:block font-body-sm text-xs text-secondary truncate max-w-[340px]" title="${summaryStr}">
+                    ${summaryStr}
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between lg:justify-end gap-space-lg">
+                  <div class="flex flex-col items-start lg:items-end">
+                    <span class="font-caption text-xs text-secondary uppercase tracking-wider">Tổng thanh toán</span>
+                    <span class="font-headline-md text-base text-on-surface font-bold tracking-tight">${formatMoney(order.TongTien)}</span>
+                  </div>
+                  
+                  <div class="flex items-center gap-space-xs">
+                    ${status === 'Chờ xác nhận' ? `
+                      <button class="px-space-md py-1.5 rounded-lg bg-surface-container-low text-error hover:bg-error-container text-xs font-medium transition-colors hidden sm:block" onclick="event.stopPropagation(); alert('Yêu cầu hủy đơn hàng đã được tiếp nhận!')" type="button">
+                        Hủy đơn
+                      </button>
+                    ` : ''}
+
+                    ${status === 'Đã giao' ? `
+                      <button class="px-space-md py-1.5 rounded-lg bg-surface-container-low text-on-surface hover:bg-surface-container-high text-xs font-medium transition-colors hidden sm:block" onclick="event.stopPropagation(); alert('Sản phẩm đã được thêm vào đơn hàng mới!')" type="button">
+                        Mua lại
+                      </button>
+                    ` : ''}
+
+                    <button aria-label="Xem chi tiết đơn hàng" class="w-9 h-9 rounded-lg bg-surface-container-low flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors" type="button">
+                      <span class="material-symbols-outlined text-[20px] transition-transform duration-200 ${isFirstCard ? 'rotate-180' : ''}" id="${chevronId}">expand_more</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Collapsible Detailed Canvas -->
+              <div class="${isFirstCard ? '' : 'hidden'} flex flex-col pt-space-lg gap-space-xl border-t border-outline-variant/20" id="${detailId}">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl">
+                  
+                  <!-- Left Column: Order Items & Pricing Breakdown (7 cols) -->
+                  <div class="lg:col-span-7 flex flex-col gap-space-md">
+                    <div class="flex items-center justify-between pb-space-xs">
+                      <span class="font-label-code-sm text-xs text-secondary uppercase tracking-wider">Danh mục sản phẩm đã mua (${items.length} mặt hàng)</span>
+                      <span class="font-caption text-xs text-secondary font-label-code-sm">Mã đơn: #ORD-${order.MaPhieuBan}</span>
+                    </div>
+
+                    <!-- Items list -->
+                    ${items.map(item => `
+                      <div class="flex items-start gap-space-md p-space-sm rounded-lg bg-surface-container-low/70 border border-outline-variant/20">
+                        <div class="w-16 h-16 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary shrink-0">
+                          <span class="material-symbols-outlined text-[24px]">texture</span>
+                        </div>
+                        <div class="flex flex-col justify-between flex-1 min-w-0">
+                          <div>
+                            <h4 class="font-headline-sm text-sm text-on-surface font-semibold truncate">${item.TenSP}</h4>
+                            <p class="font-caption text-xs text-secondary mt-0.5">
+                              Phân loại: ${item.MauSac || 'Tiêu chuẩn'} • ${item.ChatLieuSize || item.DonViTinh}
+                            </p>
+                          </div>
+                          <div class="flex items-baseline justify-between mt-space-sm">
+                            <span class="font-label-code-sm text-xs text-secondary">SL: x${formatNumber(item.SoLuongBan)} ${item.DonViTinh}</span>
+                            <span class="font-label-code-md text-sm font-semibold text-on-surface">${formatMoney(item.ThanhTien)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    `).join('')}
+
+                    <!-- Pricing Calculation -->
+                    <div class="flex flex-col gap-space-xs pt-space-sm bg-surface-container-lowest rounded-lg border-t border-outline-variant/20">
+                      <div class="flex justify-between items-center font-body-sm text-xs text-secondary">
+                        <span>Tạm tính hàng hóa</span>
+                        <span class="font-label-code-sm font-medium text-on-surface">${formatMoney(order.TongTien)}</span>
+                      </div>
+                      
+                      ${vouchers.length > 0 ? `
+                        <div class="flex justify-between items-center font-body-sm text-xs text-green-700">
+                          <span>Voucher giảm giá (#VCH-${vouchers[0].MaVoucher})</span>
+                          <span class="font-label-code-sm font-medium">-${formatMoney(vouchers[0].GiaTriVoucher)}</span>
+                        </div>
+                      ` : ''}
+
+                      <div class="flex justify-between items-center font-body-sm text-xs text-secondary">
+                        <span>Phí vận chuyển</span>
+                        <span class="font-caption text-xs px-2 py-0.5 bg-surface-container-high rounded text-on-surface font-medium">Miễn phí</span>
+                      </div>
+
+                      <div class="flex justify-between items-center pt-space-xs border-t border-outline-variant/20">
+                        <span class="font-headline-sm text-sm text-on-surface font-semibold">Tổng thanh toán</span>
+                        <span class="font-headline-md text-base text-on-surface font-bold">${formatMoney(order.TongTien)}</span>
+                      </div>
+                    </div>
+
+                    <!-- Quick Action Row -->
+                    <div class="flex flex-wrap items-center gap-space-sm pt-space-xs">
+                      ${status === 'Chờ xác nhận' ? `
+                        <button class="px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-error font-body-sm text-xs hover:bg-error-container transition-colors border border-outline-variant/30" type="button" onclick="alert('Đã gửi yêu cầu hủy đơn hàng!')">
+                          Hủy đơn hàng
+                        </button>
+                        <button class="px-space-md py-1.5 rounded-lg bg-primary text-on-primary font-body-sm text-xs font-medium hover:bg-surface-variant transition-colors" type="button" onclick="alert('Vui lòng liên hệ hỗ trợ để đổi thông tin!')">
+                          Thay đổi thông tin
+                        </button>
+                      ` : ''}
+
+                      ${status === 'Đang giao' ? `
+                        <button class="px-space-md py-1.5 rounded-lg bg-surface-container-high text-on-surface font-body-sm text-xs font-medium hover:bg-surface-container-highest transition-colors flex items-center gap-1.5" type="button" onclick="alert('Đơn hàng đang được điều phối giao tận nơi!')">
+                          <span class="material-symbols-outlined text-[16px]">local_shipping</span>
+                          Kiểm tra vị trí bưu tá
+                        </button>
+                        <button class="px-space-md py-1.5 rounded-lg bg-surface-container-high text-on-surface font-body-sm text-xs font-medium hover:bg-surface-container-highest transition-colors flex items-center gap-1.5" type="button" onclick="alert('Kết nối trung tâm hỗ trợ!')">
+                          <span class="material-symbols-outlined text-[16px]">support_agent</span>
+                          Yêu cầu hỗ trợ
+                        </button>
+                      ` : ''}
+
+                      ${status === 'Đã giao' ? `
+                        <button class="px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-xs hover:bg-surface-container-high transition-colors border border-outline-variant/30" type="button" onclick="alert('Mở form đánh giá sản phẩm!')">
+                          Đánh giá sản phẩm
+                        </button>
+                        <button class="px-space-md py-1.5 rounded-lg bg-primary text-on-primary font-body-sm text-xs font-medium hover:bg-surface-variant transition-colors" type="button" onclick="alert('Đặt lại sản phẩm vào giỏ hàng!')">
+                          Mua lại lần nữa
+                        </button>
+                      ` : ''}
+                    </div>
+                  </div>
+
+                  <!-- Right Column: Vertical Tracking Timeline (5 cols) -->
+                  <div class="lg:col-span-5 flex flex-col p-space-md rounded-xl bg-surface-container-low border border-outline-variant/20">
+                    <div class="flex items-center justify-between pb-space-md border-b border-outline-variant/20 mb-3">
+                      <div class="flex items-center gap-space-xs">
+                        <span class="material-symbols-outlined text-[20px] text-primary">timeline</span>
+                        <span class="font-headline-sm text-sm font-semibold text-on-surface">Theo dõi đơn hàng</span>
+                      </div>
+                      <span class="font-label-code-sm text-xs text-secondary">Trạng thái: <strong class="text-on-surface font-medium">${status}</strong></span>
+                    </div>
+
+                    <!-- Step Stepper -->
+                    ${renderTrackingTimeline(status, order.NgayBan)}
+
+                    <!-- Customer Recipient Info from KHACH_HANG -->
+                    <div class="mt-space-lg p-space-sm rounded-lg bg-surface-container-lowest flex items-start gap-space-sm border border-outline-variant/20">
+                      <span class="material-symbols-outlined text-[18px] text-secondary mt-0.5">person</span>
+                      <div class="flex flex-col font-caption text-xs text-secondary">
+                        <span class="font-headline-sm text-xs text-on-surface font-semibold">${order.TenKH} • ${order.SDT || 'Chưa cập nhật SĐT'}</span>
+                        <span class="mt-0.5">Phân loại: ${order.LoaiKhach || 'Khách hàng thân thiết'} • Mã KH: #KH-${order.MaKH}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+
+      } catch (err) {
+        container.innerHTML = `
+          <div class="p-space-lg bg-error-container/30 rounded-xl border border-error/20 text-center text-error flex flex-col items-center gap-2">
+            <span class="material-symbols-outlined text-[24px]">error</span>
+            <p class="font-body-sm text-xs font-semibold">${err.message}</p>
+            <button onclick="loadOrders()" class="mt-2 px-space-md py-1.5 rounded-lg bg-primary text-on-primary text-xs font-medium">Thử lại</button>
+          </div>
+        `;
+      }
+    }
+
+    // Auto populate user info & fetch orders on load
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const raw = localStorage.getItem('aura_user');
+        if (raw) {
+          const user = JSON.parse(raw);
+          const nameEl = document.getElementById('header-user-name');
+          const emailEl = document.getElementById('header-user-email');
+          if (nameEl && user.TenNV) nameEl.textContent = user.TenNV;
+          if (emailEl && (user.Email || user.TenTK)) emailEl.textContent = '@' + (user.TenTK || user.Email);
+        }
+      } catch (e) {}
+
+      loadOrders();
+    });
+  </script>
+</body>
+</html>

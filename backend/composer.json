@@ -3,7 +3,8 @@
     "description": "Backend PHP cua du an web",
     "type": "project",
     "require": {
-        "php": ">=8.1"
+        "php": ">=8.0",
+        "phpmailer/phpmailer": "^7.1"
     },
     "autoload": {
         "psr-4": {

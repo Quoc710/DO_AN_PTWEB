@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>AURA MINIMAL - Đăng nhập & Đăng ký</title>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+  <style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body { overscroll-behavior: none; }
+      main > :first-child { margin-top: 0 !important; }
+      main > :last-child { margin-bottom: 0 !important; }
+    }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "error": "#ba1a1a",
+            "surface": "#fbf8ff",
+            "surface-container-highest": "#e2e1f4",
+            "inverse-surface": "#2f2f3e",
+            "surface-tint": "#5e5d69",
+            "background": "#fbf8ff",
+            "tertiary-fixed": "#f0e0ca",
+            "tertiary-fixed-dim": "#d3c5af",
+            "error-container": "#ffdad6",
+            "surface-container-high": "#e8e6f9",
+            "outline": "#78767c",
+            "on-secondary-container": "#5f626f",
+            "secondary-container": "#dddfef",
+            "surface-bright": "#fbf8ff",
+            "primary": "#000000",
+            "on-secondary": "#ffffff",
+            "on-tertiary-fixed-variant": "#4f4535",
+            "on-tertiary-fixed": "#221a0d",
+            "primary-fixed-dim": "#c7c5d3",
+            "secondary-fixed": "#dfe2f1",
+            "primary-fixed": "#e4e1ef",
+            "tertiary": "#000000",
+            "surface-dim": "#dad8eb",
+            "surface-container-low": "#f5f2ff",
+            "surface-container": "#eeecff",
+            "on-primary-fixed": "#1b1b25",
+            "inverse-primary": "#c7c5d3",
+            "secondary-fixed-dim": "#c3c6d5",
+            "outline-variant": "#c8c5cc",
+            "on-primary": "#ffffff",
+            "inverse-on-surface": "#f1efff",
+            "on-surface": "#1a1a28",
+            "on-tertiary-container": "#8e826f",
+            "surface-variant": "#e2e1f4",
+            "on-background": "#1a1a28",
+            "on-error": "#ffffff",
+            "primary-container": "#1b1b25",
+            "on-secondary-fixed": "#181b26",
+            "on-secondary-fixed-variant": "#434653",
+            "on-error-container": "#93000a",
+            "on-primary-container": "#84828f",
+            "on-surface-variant": "#47464b",
+            "on-tertiary": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "tertiary-container": "#221a0d",
+            "secondary": "#5b5e6b",
+            "on-primary-fixed-variant": "#464651"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            "headline-sm": ["Be Vietnam Pro", "sans-serif"],
+            "headline-lg": ["Be Vietnam Pro", "sans-serif"],
+            "body-sm": ["Be Vietnam Pro", "sans-serif"],
+            "body-md": ["Be Vietnam Pro", "sans-serif"],
+            "label-code-sm": ["JetBrains Mono", "monospace"],
+            "label-code-md": ["JetBrains Mono", "monospace"],
+            "caption": ["Be Vietnam Pro", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-background font-body-md text-on-surface min-h-screen flex items-center justify-center p-4">
+  <main class="w-full max-w-md">
+    <div class="flex flex-col w-full items-center justify-center">
+      <div class="w-[400px] max-w-full bg-surface-container-lowest rounded-xl p-8 shadow-sm flex flex-col relative" style="box-shadow: 0 4px 20px -2px rgba(26, 26, 40, 0.04);">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-primary inline-block"></span>
+            <span class="font-headline-sm text-xs uppercase tracking-[0.2em] text-on-surface font-semibold">AURA MINIMAL</span>
+          </div>
+          <span class="font-label-code-sm text-xs text-secondary">VN / VI</span>
+        </div>
+
+        <!-- Tiêu đề & phụ đề -->
+        <div class="flex flex-col mb-5">
+          <h1 class="font-headline-lg text-2xl text-on-surface font-semibold" id="panel-title">Đăng nhập</h1>
+          <p class="font-body-sm text-xs text-secondary mt-1" id="panel-subtitle">Xem đơn hàng và quản lý tài khoản của bạn.</p>
+        </div>
+
+        <!-- Tab chuyển đổi -->
+        <div class="p-1 bg-surface-container-low rounded-lg flex items-center mb-5">
+          <button class="flex-1 py-1.5 px-3 rounded-md font-headline-sm text-xs text-on-primary bg-primary transition-all duration-200 text-center" id="tab-login" onclick="switchMode('login')" type="button">
+            Đăng nhập
+          </button>
+          <button class="flex-1 py-1.5 px-3 rounded-md font-headline-sm text-xs text-secondary hover:text-on-surface transition-all duration-200 text-center" id="tab-register" onclick="switchMode('register')" type="button">
+            Đăng ký
+          </button>
+        </div>
+
+        <!-- Banner thông báo lỗi -->
+        <div class="hidden bg-error-container/60 rounded-lg p-3 flex items-start gap-2.5 mb-5 transition-opacity duration-200" id="error-banner" style="opacity: 0;">
+          <span class="material-symbols-outlined text-error text-[18px] leading-none mt-0.5">error</span>
+          <div class="flex-1">
+            <p class="font-body-sm text-xs text-error font-medium leading-tight" id="error-text">Email hoặc mật khẩu không đúng.</p>
+          </div>
+          <button class="text-error/70 hover:text-error transition-colors" onclick="dismissError()" type="button" aria-label="Đóng thông báo lỗi">
+            <span class="material-symbols-outlined text-[16px] leading-none">close</span>
+          </button>
+        </div>
+
+        <!-- Banner thông báo thành công -->
+        <div class="hidden bg-green-50 text-green-800 border border-green-200 rounded-lg p-3 flex items-start gap-2.5 mb-5 text-xs font-medium transition-opacity duration-200" id="success-banner" style="opacity: 0;">
+          <span class="material-symbols-outlined text-green-600 text-[18px] leading-none mt-0.5">check_circle</span>
+          <div id="success-text" class="flex-1 leading-snug">Thành công! Đang chuyển hướng...</div>
+          <button class="text-green-700/70 hover:text-green-900 transition-colors" onclick="dismissSuccess()" type="button" aria-label="Đóng thông báo thành công">
+            <span class="material-symbols-outlined text-[16px] leading-none">close</span>
+          </button>
+        </div>
+
+        <!-- Form nhập liệu -->
+        <form class="flex flex-col gap-4" id="auth-form" novalidate onsubmit="handleSubmit(event); return false;">
+          <!-- Họ và tên (chỉ hiện khi Đăng ký) -->
+          <div class="hidden flex-col" id="field-fullname">
+            <label class="font-label-code-sm text-xs text-on-surface uppercase tracking-wider mb-1.5" for="input-name">
+              Họ và tên
+            </label>
+            <div class="relative flex items-center">
+              <input class="w-full bg-surface-container-lowest text-on-surface font-body-md text-sm placeholder:text-outline-variant px-3.5 py-2.5 rounded-lg focus:outline-none transition-colors duration-150" 
+                     id="input-name" 
+                     placeholder="Nguyễn Văn A" 
+                     style="box-shadow: inset 0 0 0 1px #e2e1f4;" 
+                     type="text"/>
+            </div>
+          </div>
+
+          <!-- Email / Tên tài khoản -->
+          <div class="flex flex-col">
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="font-label-code-sm text-xs text-on-surface uppercase tracking-wider" for="input-username">
+                Tài khoản / Email
+              </label>
+              <span class="font-label-code-sm text-xs text-outline-variant" id="field-code">ID: 01</span>
+            </div>
+            <div class="relative flex items-center">
+              <input class="w-full bg-surface-container-lowest text-on-surface font-body-md text-sm placeholder:text-outline-variant px-3.5 py-2.5 rounded-lg focus:outline-none transition-colors duration-150" 
+                     id="input-username" 
+                     placeholder="ban@email.com hoặc ten_tai_khoan" 
+                     style="box-shadow: inset 0 0 0 1px #e2e1f4;" 
+                     required 
+                     type="text"/>
+            </div>
+          </div>
+
+          <!-- Mật khẩu -->
+          <div class="flex flex-col">
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="font-label-code-sm text-xs text-on-surface uppercase tracking-wider" for="input-password">
+                Mật khẩu
+              </label>
+              <span class="font-label-code-sm text-xs text-outline-variant" id="field-code-pwd">ID: 02</span>
+            </div>
+            <div class="relative flex items-center">
+              <input class="w-full bg-surface-container-lowest text-on-surface font-label-code-md text-sm placeholder:text-outline-variant pl-3.5 pr-10 py-2.5 rounded-lg focus:outline-none transition-colors duration-150" 
+                     id="input-password" 
+                     placeholder="••••••••" 
+                     style="box-shadow: inset 0 0 0 1px #e2e1f4;" 
+                     required 
+                     type="password"/>
+              <button aria-label="Ẩn hiện mật khẩu" class="absolute right-3 text-secondary hover:text-on-surface flex items-center justify-center p-0.5 rounded transition-colors" onclick="togglePasswordVisibility()" type="button">
+                <span class="material-symbols-outlined text-[19px] leading-none" id="pwd-icon">visibility_off</span>
+              </button>
+            </div>
+
+            <!-- Hàng tiện ích dưới ô Mật khẩu: Ghi nhớ & Quên mật khẩu / Yêu cầu bảo mật -->
+            <div class="flex items-center justify-between mt-2 min-h-[20px]" id="pwd-extra-row">
+              <!-- Hướng dẫn (chỉ hiện khi Đăng ký) -->
+              <div class="hidden items-center gap-1.5" id="pwd-hint">
+                <span class="material-symbols-outlined text-outline-variant text-[13px] leading-none">info</span>
+                <p class="font-label-code-sm text-xs text-secondary">Dùng ít nhất 8 ký tự kèm chữ và số.</p>
+              </div>
+
+              <!-- Ghi nhớ đăng nhập (chỉ hiện khi Đăng nhập) -->
+              <label class="flex items-center gap-1.5 cursor-pointer text-xs text-secondary hover:text-on-surface select-none" id="remember-group">
+                <input type="checkbox" class="w-3.5 h-3.5 rounded border-surface-container-highest accent-primary cursor-pointer" id="remember-me" checked>
+                <span class="font-body-sm">Ghi nhớ</span>
+              </label>
+
+              <!-- Quên mật khẩu (chỉ hiện khi Đăng nhập, căn lề phải) -->
+              <a class="font-body-sm text-xs text-secondary hover:text-on-surface hover:underline transition-colors duration-150 ml-auto" href="javascript:void(0)" onclick="handleForgotPassword()" id="forgot-link">
+                Quên mật khẩu?
+              </a>
+            </div>
+          </div>
+
+          <!-- Nút Submit -->
+          <button class="w-full mt-2 py-3 px-4 bg-primary text-on-primary font-headline-sm text-sm rounded-lg flex items-center justify-center gap-2 hover:bg-inverse-surface transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed" id="submit-button" type="submit">
+            <span id="submit-text">Đăng nhập</span>
+            <span class="material-symbols-outlined text-[18px] leading-none" id="submit-icon">arrow_forward</span>
+          </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="mt-6 pt-5 bg-surface-container-low/50 -mx-8 -mb-8 p-6 rounded-b-xl flex flex-col items-center justify-center text-center">
+          <p class="font-body-sm text-xs text-secondary" id="footer-helper">
+            Chưa có tài khoản? 
+            <button class="font-headline-sm text-xs text-on-surface font-semibold hover:underline ml-1" onclick="switchMode('register')" type="button">
+              Đăng ký ngay
+            </button>
+          </p>
+          <div class="flex items-center gap-3 mt-3">
+            <span class="font-label-code-sm text-[10px] text-outline-variant tracking-wider">AURA LOGISTICS VERIFIED</span>
+            <span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+            <span class="font-label-code-sm text-[10px] text-outline-variant tracking-wider">256-BIT SSL</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const currentHost = window.location.hostname || 'localhost';
+    const API_BASE = `http://${currentHost}:8000`;
+    let currentMode = 'login';
+
+    function switchMode(mode) {
+      currentMode = mode;
+      const tabLogin = document.getElementById('tab-login');
+      const tabRegister = document.getElementById('tab-register');
+      const panelTitle = document.getElementById('panel-title');
+      const panelSubtitle = document.getElementById('panel-subtitle');
+      const fieldName = document.getElementById('field-fullname');
+      const forgotLink = document.getElementById('forgot-link');
+      const rememberGroup = document.getElementById('remember-group');
+      const pwdHint = document.getElementById('pwd-hint');
+      const submitText = document.getElementById('submit-text');
+      const footerHelper = document.getElementById('footer-helper');
+      dismissError(true);
+      dismissSuccess(true);
+
+      if (mode === 'register') {
+        tabRegister.className = "flex-1 py-1.5 px-3 rounded-md font-headline-sm text-xs text-on-primary bg-primary transition-all duration-200 text-center";
+        tabLogin.className = "flex-1 py-1.5 px-3 rounded-md font-headline-sm text-xs text-secondary hover:text-on-surface transition-all duration-200 text-center";
+        
+        panelTitle.textContent = "Tạo tài khoản";
+        panelSubtitle.textContent = "Đăng ký tài khoản nhân viên vào hệ thống quản lý.";
+        fieldName.classList.remove('hidden');
+        fieldName.classList.add('flex');
+        
+        if (pwdHint) {
+          pwdHint.classList.remove('hidden');
+          pwdHint.classList.add('flex');
+        }
+        if (rememberGroup) rememberGroup.classList.add('hidden');
+        if (forgotLink) forgotLink.classList.add('hidden');
+        submitText.textContent = "Hoàn tất đăng ký";
+        
+        footerHelper.innerHTML = 'Đã có tài khoản? <button type="button" onclick="switchMode(\'login\')" class="font-headline-sm text-xs text-on-surface font-semibold hover:underline ml-1">Đăng nhập</button>';
+      } else {
+        tabLogin.className = "flex-1 py-1.5 px-3 rounded-md font-headline-sm text-xs text-on-primary bg-primary transition-all duration-200 text-center";
+        tabRegister.className = "flex-1 py-1.5 px-3 rounded-md font-headline-sm text-xs text-secondary hover:text-on-surface transition-all duration-200 text-center";
+        
+        panelTitle.textContent = "Đăng nhập";
+        panelSubtitle.textContent = "Xem đơn hàng và quản lý tài khoản của bạn.";
+        fieldName.classList.add('hidden');
+        fieldName.classList.remove('flex');
+        
+        if (pwdHint) {
+          pwdHint.classList.add('hidden');
+          pwdHint.classList.remove('flex');
+        }
+        if (rememberGroup) rememberGroup.classList.remove('hidden');
+        if (forgotLink) forgotLink.classList.remove('hidden');
+        submitText.textContent = "Đăng nhập";
+        
+        footerHelper.innerHTML = 'Chưa có tài khoản? <button type="button" onclick="switchMode(\'register\')" class="font-headline-sm text-xs text-on-surface font-semibold hover:underline ml-1">Đăng ký ngay</button>';
+      }
+    }
+
+    function handleForgotPassword() {
+      showError('Chức năng bảo mật: Vui lòng liên hệ Quản trị viên để đặt lại mật khẩu.');
+    }
+
+    function togglePasswordVisibility() {
+      const pwdInput = document.getElementById('input-password');
+      const pwdIcon = document.getElementById('pwd-icon');
+      if (pwdInput.type === 'password') {
+        pwdInput.type = 'text';
+        pwdIcon.textContent = 'visibility';
+      } else {
+        pwdInput.type = 'password';
+        pwdIcon.textContent = 'visibility_off';
+      }
+    }
+
+    let errorDismissTimeout = null;
+    let successDismissTimeout = null;
+
+    function showError(msg) {
+      if (errorDismissTimeout) {
+        clearTimeout(errorDismissTimeout);
+        errorDismissTimeout = null;
+      }
+      if (successDismissTimeout) {
+        clearTimeout(successDismissTimeout);
+        successDismissTimeout = null;
+      }
+
+      dismissSuccess(true);
+
+      const errorBanner = document.getElementById('error-banner');
+      const errorText = document.getElementById('error-text');
+
+      if (errorBanner && errorText) {
+        errorText.innerHTML = msg;
+        errorBanner.classList.remove('hidden');
+        requestAnimationFrame(() => {
+          errorBanner.style.opacity = '1';
+        });
+      }
+    }
+
+    async function handleResendActivation() {
+      const username = document.getElementById('input-username').value.trim();
+      if (!username) {
+        showError('Vui lòng nhập email hoặc tài khoản để gửi lại thư kích hoạt.');
+        return;
+      }
+
+      showSuccess('Đang gửi lại email kích hoạt tới ' + username + '...');
+
+      try {
+        const res = await fetch(`${API_BASE}/api/tai-khoan/resend-activation`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({ username }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || data.status === 'error') {
+          throw new Error(data.message || 'Không thể gửi lại email.');
+        }
+
+        const link = data.data?.activation_link;
+        let html = `<div><strong>Đã gửi lại email kích hoạt!</strong></div>`;
+        html += `<div class="mt-1 text-xs">Email kích hoạt đã được gửi tới <strong>${data.data?.email || username}</strong>.</div>`;
+        html += `<div class="mt-2 text-[11px] text-secondary bg-surface-container-low p-2 rounded border border-outline-variant/30 text-left">
+          💡 <strong>Lưu ý:</strong> Vui lòng kiểm tra cả mục <strong>Spam / Thư rác</strong> nếu không thấy trong <em>Hộp thư đến</em>.
+        </div>`;
+
+        showSuccessHtml(html);
+      } catch (err) {
+        showError(err.message || 'Lỗi khi gửi lại email.');
+      }
+    }
+
+    function dismissError(immediate = false) {
+      if (errorDismissTimeout) {
+        clearTimeout(errorDismissTimeout);
+        errorDismissTimeout = null;
+      }
+      const errorBanner = document.getElementById('error-banner');
+      if (!errorBanner) return;
+
+      if (immediate) {
+        errorBanner.style.opacity = '0';
+        errorBanner.classList.add('hidden');
+      } else {
+        errorBanner.style.opacity = '0';
+        errorDismissTimeout = setTimeout(() => {
+          errorBanner.classList.add('hidden');
+          errorDismissTimeout = null;
+        }, 200);
+      }
+    }
+
+    function showSuccess(msg) {
+      showSuccessHtml(msg);
+    }
+
+    function showSuccessHtml(html) {
+      if (errorDismissTimeout) {
+        clearTimeout(errorDismissTimeout);
+        errorDismissTimeout = null;
+      }
+      if (successDismissTimeout) {
+        clearTimeout(successDismissTimeout);
+        successDismissTimeout = null;
+      }
+
+      dismissError(true);
+
+      const successBanner = document.getElementById('success-banner');
+      const successText = document.getElementById('success-text');
+
+      if (successBanner && successText) {
+        successText.innerHTML = html;
+        successBanner.classList.remove('hidden');
+        requestAnimationFrame(() => {
+          successBanner.style.opacity = '1';
+        });
+      }
+    }
+
+    function dismissSuccess(immediate = false) {
+      if (successDismissTimeout) {
+        clearTimeout(successDismissTimeout);
+        successDismissTimeout = null;
+      }
+      const successBanner = document.getElementById('success-banner');
+      if (!successBanner) return;
+
+      if (immediate) {
+        successBanner.style.opacity = '0';
+        successBanner.classList.add('hidden');
+      } else {
+        successBanner.style.opacity = '0';
+        successDismissTimeout = setTimeout(() => {
+          successBanner.classList.add('hidden');
+          successDismissTimeout = null;
+        }, 200);
+      }
+    }
+
+    async function handleSubmit(event) {
+      if (event) {
+        event.preventDefault();
+      }
+
+      const submitBtn = document.getElementById('submit-button');
+      const submitText = document.getElementById('submit-text');
+      const username = document.getElementById('input-username').value.trim();
+      const password = document.getElementById('input-password').value;
+      const fullname = document.getElementById('input-name')?.value.trim();
+
+      if (!username || !password) {
+        showError('Vui lòng điền đầy đủ tài khoản và mật khẩu.');
+        return;
+      }
+
+      if (currentMode === 'register' && !fullname) {
+        showError('Vui lòng nhập họ và tên nhân viên.');
+        return;
+      }
+
+      // Trạng thái loading
+      submitBtn.disabled = true;
+      const originalText = submitText.textContent;
+      submitText.textContent = currentMode === 'register' ? 'Đang gửi email xác nhận...' : 'Đang xử lý...';
+
+      try {
+        const endpoint = currentMode === 'login' 
+          ? `${API_BASE}/api/tai-khoan/login` 
+          : `${API_BASE}/api/tai-khoan/register`;
+
+        const payload = currentMode === 'login'
+          ? { username, password }
+          : { fullname, username, email: username, password, viTri: 'Nhân viên bán hàng' };
+
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          credentials: 'include', // Giữ cookie session PHP
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || data.status === 'error') {
+          throw new Error(data.message || 'Thao tác không thành công.');
+        }
+
+        // XỬ LÝ KHI ĐĂNG KÝ: Yêu cầu kích hoạt qua Email
+        if (currentMode === 'register') {
+          const isReal = data.data?.sent_real;
+          const link = data.data?.activation_link;
+          const isResend = data.data?.is_resend;
+          const userTargetEmail = data.data?.Email || username;
+
+          let msgHtml = `<div><strong>${isResend ? 'Đã gửi lại email kích hoạt!' : 'Đăng ký tài khoản thành công!'}</strong></div>`;
+          msgHtml += `<div class="mt-1 text-xs">Email kích hoạt đã được gửi tới <strong>${userTargetEmail}</strong>. Vui lòng mở hòm thư của bạn để nhấn vào liên kết xác nhận.</div>`;
+          
+          msgHtml += `<div class="mt-2 text-[11px] text-green-900/80 bg-green-100/60 p-2 rounded border border-green-200 text-left">
+            💡 <strong>Lưu ý:</strong> Vui lòng kiểm tra cả mục <strong>Spam / Thư rác</strong> nếu không thấy trong <em>Hộp thư đến</em>.
+          </div>`;
+
+          showSuccessHtml(msgHtml);
+          document.getElementById('input-password').value = '';
+          return;
+        }
+
+        // XỬ LÝ KHI ĐĂNG NHẬP THÀNH CÔNG
+        showSuccess('Đăng nhập thành công! Đang vào hệ thống...');
+        
+        // Lưu thông tin cơ bản và token vào localStorage
+        if (data.data) {
+          localStorage.setItem('aura_user', JSON.stringify(data.data));
+          if (data.data.token) {
+            localStorage.setItem('aura_token', data.data.token);
+          }
+        }
+
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1200);
+
+      } catch (err) {
+        let errMsg = err.message || 'Lỗi kết nối máy chủ.';
+        if (errMsg.includes('chưa được kích hoạt') || errMsg.includes('kích hoạt tài khoản')) {
+          errMsg += `<div class="mt-2 pt-2 border-t border-error/20 flex items-center justify-between text-[11px]">
+            <span class="text-error/80">Chưa nhận được email?</span>
+            <button type="button" onclick="handleResendActivation()" class="underline font-bold text-error hover:text-black">Gửi lại email kích hoạt &rarr;</button>
+          </div>`;
+        }
+        showError(errMsg);
+      } finally {
+        submitBtn.disabled = false;
+        submitText.textContent = originalText;
+      }
+    }
+
+    // Tự động kiểm tra nếu quay lại từ link kích hoạt thành công
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('verified') === '1' || urlParams.get('verified') === 'success') {
+        showSuccess('🎉 Tài khoản của bạn đã được kích hoạt thành công! Hãy đăng nhập ngay bây giờ.');
+      }
+    });
+  </script>
+</body>
+</html>
