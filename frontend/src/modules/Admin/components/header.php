@@ -645,26 +645,6 @@ $projectRootDir = dirname(__DIR__, 5);
               class="text-[10px] bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded font-medium"><?= (int) ($reviewCounts['pending'] ?? 0) ?>
               Cần xem</span>
           </a>
-          <div class="pt-5 px-2 pb-1.5">
-            <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Báo cáo &amp; Cài đặt</span>
-          </div>
-          <a class="sidebar-nav-link flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition text-xs font-medium"
-            data-target="quan-ly-vai" href="#quan-ly-vai">
-            <i class="nav-icon fa-solid fa-warehouse w-4 text-center text-slate-400"
-              data-default-color="text-slate-400"></i>
-            <span>Kho &amp; Sản phẩm</span>
-          </a>
-          <a class="sidebar-nav-link flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition text-xs font-medium"
-            data-target="voucher-khuyen-mai" href="#voucher-khuyen-mai">
-            <i class="nav-icon fa-solid fa-share-nodes w-4 text-center text-slate-400"
-              data-default-color="text-slate-400"></i>
-            <span>Mạng lưới Affiliate</span>
-          </a>
-          <a class="sidebar-nav-link flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition text-xs font-medium"
-            data-target="dong-bo-odoo" href="#dong-bo-odoo">
-            <i class="nav-icon fa-solid fa-gear w-4 text-center text-slate-400" data-default-color="text-slate-400"></i>
-            <span>Cấu hình Cổng Odoo 17</span>
-          </a>
         </nav>
       </div>
       <!-- Footer Quick Status in Sidebar -->
