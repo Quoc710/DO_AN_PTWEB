@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura Storefront - Cửa hàng Vải Trực tuyến</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
+
+    <!-- Top Navbar -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-8 py-3.5 flex justify-between items-center shadow-xs z-20">
+        <div class="flex items-center space-x-8">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-indigo-600 to-violet-600 p-2.5 rounded-xl text-white shadow-md shadow-indigo-200">
+                    <i class="fa-solid fa-store text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-sm text-slate-900 tracking-tight">Aura Storefront</h1>
+                    <span class="text-[11px] text-indigo-600 font-semibold tracking-wide uppercase">Phân hệ Khách hàng</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex space-x-6 text-sm font-medium text-slate-600">
+                <a href="#" class="text-indigo-600 font-semibold transition">Trang chủ</a>
+                <a href="#catalog" class="hover:text-indigo-600 transition">Sản phẩm vải</a>
+                <a href="#calculator" class="hover:text-indigo-600 transition">Công cụ tính mét</a>
+            </nav>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <!-- Trạng thái đơn hàng (Dùng để test tính năng Chặn Review Ảo) -->
+            <div class="flex items-center space-x-2 bg-slate-100/80 px-3 py-1.5 rounded-full border border-slate-200 text-xs">
+                <span class="text-slate-500">Trạng thái đơn (DB):</span>
+                <span id="order-status-badge" class="font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">Chờ giao hàng</span>
+                <button onclick="toggleOrderStatus()" class="text-indigo-600 hover:text-indigo-800 font-semibold underline ml-1 cursor-pointer">[Đổi]</button>
+            </div>
+
+            <div class="flex items-center space-x-2.5 pl-2 border-l border-slate-200">
+                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">KH</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- Sidebar: Bộ lọc & Công cụ tính mét vải -->
+        <aside class="w-80 bg-white border-r border-slate-200/80 p-6 overflow-y-auto hidden lg:flex flex-col justify-between space-y-6">
+            <div class="space-y-6">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-xs uppercase tracking-wider mb-4 flex items-center text-slate-400">
+                        <i class="fa-solid fa-filter mr-2 text-indigo-600"></i> Bộ lọc tìm kiếm
+                    </h3>
+                    
+                    <div class="space-y-4 text-xs text-slate-600">
+                        <!-- Lọc chất liệu -->
+                        <div class="space-y-2">
+                            <label class="font-semibold text-slate-800 block">Chất liệu / Size</label>
+                            <div class="space-y-2 pl-1">
+                                <label class="flex items-center space-x-2.5 cursor-pointer"><input type="checkbox" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"><span>Cotton Organic</span></label>
+                                <label class="flex items-center space-x-2.5 cursor-pointer"><input type="checkbox" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"><span>Lụa tơ tằm (Silk)</span></label>
+                                <label class="flex items-center space-x-2.5 cursor-pointer"><input type="checkbox" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"><span>Wool Oversized / Dạ</span></label>
+                            </div>
+                        </div>
+
+                        <!-- Lọc màu sắc -->
+                        <div class="pt-4 border-t border-slate-100 space-y-2">
+                            <label class="font-semibold text-slate-800 block">Màu sắc</label>
+                            <div class="flex gap-2.5 pt-1">
+                                <span class="w-6 h-6 rounded-full bg-slate-900 border-2 border-white shadow-sm cursor-pointer"></span>
+                                <span class="w-6 h-6 rounded-full bg-white border-2 border-slate-300 shadow-sm cursor-pointer"></span>
+                                <span class="w-6 h-6 rounded-full bg-blue-600 border-2 border-white shadow-sm cursor-pointer"></span>
+                                <span class="w-6 h-6 rounded-full bg-red-600 border-2 border-white shadow-sm cursor-pointer"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Công cụ tính mét vải -->
+                <div id="calculator" class="bg-gradient-to-br from-indigo-50/80 to-violet-50/80 border border-indigo-100 rounded-2xl p-4 text-xs space-y-3 shadow-xs">
+                    <h4 class="font-bold text-indigo-950 flex items-center text-sm">
+                        <i class="fa-solid fa-calculator mr-2 text-indigo-600"></i> Công cụ tính mét vải
+                    </h4>
+                    <p class="text-indigo-900/70 text-[11px] leading-relaxed">Chọn trang phục & nhập thể hình để gợi ý số mét cần mua.</p>
+                    
+                    <div class="space-y-2 pt-1">
+                        <div>
+                            <label class="text-slate-600 font-medium block mb-1">Loại trang phục</label>
+                            <select id="calc-type" class="w-full bg-white border border-indigo-200/80 rounded-xl p-2 text-slate-800 focus:outline-none focus:border-indigo-500">
+                                <option value="1.5">Áo sơ mi (~1.5 mét)</option>
+                                <option value="1.8">Quần tây (~1.8 mét)</option>
+                                <option value="2.5">Áo khoác / Blazer (~2.5 mét)</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-slate-600 font-medium block mb-1">Chiều cao</label>
+                                <input id="calc-height" type="text" placeholder="VD: 1m70" class="w-full bg-white border border-indigo-200/80 rounded-xl p-2 text-slate-800 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="text-slate-600 font-medium block mb-1">Cân nặng</label>
+                                <input id="calc-weight" type="number" placeholder="VD: 65kg" class="w-full bg-white border border-indigo-200/80 rounded-xl p-2 text-slate-800 focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="calculateFabric()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl transition shadow-sm shadow-indigo-200 cursor-pointer">
+                        Tính số mét vải cần mua
+                    </button>
+                    <div id="calc-result" class="text-indigo-900 font-semibold text-center p-2 bg-white/60 rounded-xl border border-indigo-100 hidden"></div>
+                </div>
+            </div>
+
+            <div class="text-[11px] text-slate-400 text-center pt-4 border-t border-slate-100">
+                Aura Fabric Storefront v1.0
+            </div>
+        </aside>
+
+        <!-- Main Product & Review Area -->
+        <main id="catalog" class="flex-1 overflow-y-auto p-8 space-y-8 bg-slate-50/50">
+            <!-- Header bar -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 tracking-tight">Danh sách sản phẩm vải từ CSDL</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Dữ liệu được đồng bộ trực tiếp từ SQL Server thông qua Laravel API</p>
+                </div>
+            </div>
+
+            <!-- Product Grid (Đổ dữ liệu từ API Backend) -->
+            <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <!-- Dữ liệu sẽ được render tự động từ Javascript gọi API -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-slate-400 text-xs col-span-3">
+                    <i class="fa-solid fa-spinner fa-spin text-indigo-600 text-lg mb-2"></i> Đang tải dữ liệu từ cơ sở dữ liệu SQL Server...
+                </div>
+            </div>
+
+            <!-- Khu vực Đánh giá & Chống Review ảo -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-slate-100 gap-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base flex items-center">
+                            <i class="fa-solid fa-star text-amber-500 mr-2"></i> Đánh giá sản phẩm & Chống Review Ảo
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Kiểm tra trạng thái bảng `PHIEU_BAN` để cấp quyền viết đánh giá</p>
+                    </div>
+                    
+                    <!-- Nút Viết Đánh Giá (Bị chặn nếu đơn hàng chưa "Đã giao thành công") -->
+                    <div id="review-action-container">
+                        <button id="btn-write-review" onclick="openReviewModal()" disabled class="bg-slate-100 text-slate-400 cursor-not-allowed text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center space-x-1.5">
+                            <i class="fa-solid fa-lock text-[10px]"></i>
+                            <span>Viết Đánh Giá (Bị khóa - Chưa nhận hàng)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Danh sách bình luận mẫu kèm ảnh thực tế -->
+                <div class="space-y-4">
+                    <div class="p-4 bg-slate-50/80 border border-slate-200/60 rounded-xl space-y-2">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center font-bold text-xs text-indigo-600">KH</div>
+                                <span class="font-bold text-slate-800 text-xs">Khách hàng kiểm thử</span>
+                            </div>
+                            <span class="text-amber-500 text-xs">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-600 pl-9">Vải rất đẹp, đúng tiêu chuẩn cuộn lẻ hiển thị trên hệ thống!</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Viết Đánh Giá -->
+    <div id="review-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-md space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <h3 class="font-bold text-slate-900 text-base">Viết đánh giá sản phẩm</h3>
+                <button onclick="closeReviewModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Chấm điểm sao (1-5)</label>
+                    <select id="review-stars" class="w-full border border-slate-200 rounded-xl p-2.5 text-slate-800">
+                        <option value="5">⭐⭐⭐⭐⭐ (5/5 Tuyệt vời)</option>
+                        <option value="4">⭐⭐⭐⭐ (4/5 Hài lòng)</option>
+                        <option value="3">⭐⭐⭐ (3/5 Bình thường)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="font-semibold text-slate-700 block mb-1">Nội dung đánh giá</label>
+                    <textarea id="review-content" rows="3" class="w-full border border-slate-200 rounded-xl p-2.5 text-slate-800" placeholder="Nhập cảm nhận của bạn..."></textarea>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100">
+                <button onclick="closeReviewModal()" class="bg-slate-100 px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 cursor-pointer">Hủy</button>
+                <button onclick="submitReview()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer">Gửi đánh giá</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript tích hợp Backend API -->
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000/api/v1/storefront';
+
+        // 1. Tải danh sách sản phẩm từ SQL Server khi mở trang
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchProducts();
+        });
+
+        function fetchProducts() {
+            fetch(`${API_BASE_URL}/products`)
+                .then(response => response.json())
+                .then(result => {
+                    const grid = document.getElementById('product-grid');
+                    if (result.success && result.data.length > 0) {
+                        grid.innerHTML = '';
+                        result.data.forEach(item => {
+                            grid.innerHTML += `
+                                <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs hover:shadow-md transition flex flex-col justify-between">
+                                    <div class="p-5 space-y-3">
+                                        <span class="text-[10px] bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-lg font-bold">${item.NhomSP || 'Vải thời trang'}</span>
+                                        <h3 class="font-bold text-slate-900 text-base">${item.TenSP}</h3>
+                                        <p class="text-xs text-slate-500">Màu: ${item.MauSac || 'N/A'} • Size/Chất liệu: ${item.ChatLieuSize || 'N/A'}</p>
+                                        
+                                        <!-- Cảnh báo cuộn lẻ lấy từ bảng CUON_VAI -->
+                                        <div class="bg-amber-50/80 border border-amber-200/80 text-amber-900 text-xs p-2.5 rounded-xl flex items-start space-x-2">
+                                            <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5"></i>
+                                            <div>
+                                                <strong class="font-semibold">Cảnh báo cuộn lẻ:</strong> Độ dài liền mạch tối đa: <strong class="text-amber-950 font-bold">${item.DoDaiLienMachToiDa || '10'} mét</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="p-5 pt-0 flex justify-between items-center border-t border-slate-100 mt-2">
+                                        <span class="text-indigo-600 font-extrabold text-sm">Hàng sẵn kho</span>
+                                        <button class="bg-slate-900 hover:bg-indigo-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition cursor-pointer">Chọn mua</button>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        grid.innerHTML = `<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-slate-500 text-xs col-span-3">Không có sản phẩm nào trong cơ sở dữ liệu.</div>`;
+                    }
+                })
+                .catch(err => {
+                    console.error("Lỗi kết nối API Backend:", err);
+                });
+        }
+
+        // 2. Giả lập đổi trạng thái đơn hàng để test kiểm tra quyền đánh giá
+        let isDelivered = false;
+
+        function toggleOrderStatus() {
+            isDelivered = !isDelivered;
+            const badgeEl = document.getElementById('order-status-badge');
+            const btnReview = document.getElementById('btn-write-review');
+
+            if (isDelivered) {
+                badgeEl.innerText = "Đã giao thành công";
+                badgeEl.className = "font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200";
+                
+                // Mở khóa nút đánh giá
+                btnReview.disabled = false;
+                btnReview.className = "bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-sm cursor-pointer flex items-center space-x-1.5";
+                btnReview.innerHTML = '<i class="fa-solid fa-pen text-[10px]"></i><span>Viết Đánh Giá</span>';
+            } else {
+                badgeEl.innerText = "Chờ giao hàng";
+                badgeEl.className = "font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200";
+                
+                // Khóa nút đánh giá
+                btnReview.disabled = true;
+                btnReview.className = "bg-slate-100 text-slate-400 cursor-not-allowed text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center space-x-1.5";
+                btnReview.innerHTML = '<i class="fa-solid fa-lock text-[10px]"></i><span>Viết Đánh Giá (Bị khóa - Chưa nhận hàng)</span>';
+            }
+        }
+
+        // 3. Công cụ tính mét vải
+        function calculateFabric() {
+            const baseType = parseFloat(document.getElementById('calc-type').value);
+            const weight = parseFloat(document.getElementById('calc-weight').value) || 60;
+            
+            let multiplier = 1.0;
+            if (weight > 75) multiplier = 1.2;
+            else if (weight < 50) multiplier = 0.9;
+
+            let total = (baseType * multiplier).toFixed(1);
+            const resEl = document.getElementById('calc-result');
+            resEl.innerText = `💡 Gợi ý định mức cần mua: ${total} mét vải`;
+            resEl.classList.remove('hidden');
+        }
+
+        function openReviewModal() {
+            document.getElementById('review-modal').classList.remove('hidden');
+        }
+
+        function closeReviewModal() {
+            document.getElementById('review-modal').classList.add('hidden');
+        }
+
+        // 4. Gửi đánh giá lên API Backend
+        function submitReview() {
+            const sosao = document.getElementById('review-stars').value;
+            const noidung = document.getElementById('review-content').value;
+
+            fetch(`${API_BASE_URL}/reviews`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ MaKH: 1, SoSao: sosao, NoiDung: noidung })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Đã gửi đánh giá thành công!');
+                    closeReviewModal();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(err => console.error("Lỗi gửi đánh giá:", err));
+        }
+    </script>
+</body>
+</html>

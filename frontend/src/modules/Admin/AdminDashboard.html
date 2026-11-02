@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura Portal - Trung tâm Điều hành</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 flex h-screen overflow-hidden">
+
+    <!-- Sidebar Cố định -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex">
+        <div>
+            <div class="p-4 border-b border-slate-200 flex items-center space-x-3">
+                <div class="bg-indigo-600 p-2 rounded-lg text-white font-bold">A</div>
+                <div>
+                    <h1 class="font-bold text-sm text-slate-900">Aura Minimal</h1>
+                    <span class="text-xs text-indigo-600">AURA PORTAL</span>
+                </div>
+            </div>
+            <nav class="p-3 space-y-1">
+                <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-slate-900 text-white text-sm font-medium"><i class="fa-solid fa-chart-pie w-5"></i><span>Tổng quan</span></a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 text-sm"><i class="fa-solid fa-box-archive w-5"></i><span>Đơn hàng</span></a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 text-sm"><i class="fa-solid fa-warehouse w-5"></i><span>Kho & Sản phẩm</span></a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 text-sm"><i class="fa-solid fa-network-wired w-5"></i><span>Mạng lưới Affiliate</span></a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto bg-slate-100 p-6">
+        <header class="flex justify-between items-center mb-6 pb-4 border-b border-slate-200 bg-white px-6 py-4 rounded-xl shadow-sm">
+            <div>
+                <span class="text-xs text-slate-500">Phân hệ Điều hành / <strong class="text-indigo-600">Vận hành</strong></span>
+                <h2 class="text-xl font-bold text-slate-900">Trung tâm Điều hành</h2>
+            </div>
+            <div class="text-xs bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700">
+                Hệ thống: Trực tuyến
+            </div>
+        </header>
+
+        <!-- Các thẻ thống kê nhanh (Khung trống) -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <span class="text-xs text-slate-500 font-semibold">DOANH THU HÔM NAY</span>
+                <h3 class="text-xl font-extrabold text-slate-300 mt-2">&nbsp;</h3>
+                <span class="text-xs text-slate-400 mt-2 block">&nbsp;</span>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <span class="text-xs text-slate-500 font-semibold">ĐƠN HÀNG MỚI</span>
+                <h3 class="text-xl font-extrabold text-slate-300 mt-2">&nbsp;</h3>
+                <span class="text-xs text-slate-400 mt-2 block">&nbsp;</span>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <span class="text-xs text-slate-500 font-semibold">TỒN KHO CẢNH BÁO</span>
+                <h3 class="text-xl font-extrabold text-slate-300 mt-2">&nbsp;</h3>
+                <span class="text-xs text-slate-400 mt-2 block">&nbsp;</span>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <span class="text-xs text-slate-500 font-semibold">AFFILIATE HOẠT ĐỘNG</span>
+                <h3 class="text-xl font-extrabold text-slate-300 mt-2">&nbsp;</h3>
+                <span class="text-xs text-slate-400 mt-2 block">&nbsp;</span>
+            </div>
+        </div>
+
+        <!-- Khu vực hiển thị bảng dữ liệu chính của các thành viên -->
+        <div class="bg-white rounded-xl border border-slate-200 p-4 flex-1 shadow-sm">
+            <h3 class="font-bold text-slate-900 text-base mb-2">Đơn hàng mới nhất</h3>
+            <p class="text-xs text-slate-500 mb-4">Khung giao diện chuẩn. Các thành viên tự ráp bảng dữ liệu và gọi API vào đây.</p>
+            <div class="border border-dashed border-slate-300 rounded-lg p-12 text-center text-slate-400 text-sm bg-slate-50">
+                [ Vùng bảng dữ liệu / chức năng chi tiết do thành viên phụ trách module tự phát triển ]
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>
