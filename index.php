@@ -1,10 +1,8 @@
 <?php
-declare(strict_types=1);
-
 /**
- * Cổng vào chính (Root Entry Point) của dự án DO_AN_PTWEB
- * Chuyển tiếp điều hướng vào Backend Module Admin (backend/src/Modules/Admin/routes.php)
+ * Root index.php — điểm vào tại thư mục gốc dự án.
+ * Backend thực sự chạy tại: backend/public/index.php
+ * File này chỉ redirect để tránh truy cập nhầm thư mục.
  */
-require_once __DIR__ . '/backend/src/Modules/Admin/routes.php';
-
-dispatchAdminModuleRoutes();
+header('Location: /backend/public/');
+exit;

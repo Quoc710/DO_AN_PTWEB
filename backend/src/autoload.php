@@ -1,6 +1,7 @@
 <?php
 /**
  * PSR-4 Autoloader fallback when composer vendor/autoload.php is not yet generated.
+ * Hỗ trợ cả Composer vendor và fallback thủ công khi chưa chạy composer install.
  */
 $vendorAutoload = __DIR__ . '/../vendor/autoload.php';
 
@@ -8,7 +9,7 @@ if (file_exists($vendorAutoload)) {
     require_once $vendorAutoload;
 } else {
     spl_autoload_register(function ($class) {
-        $prefix = 'App\\';
+        $prefix  = 'App\\';
         $baseDir = __DIR__ . '/';
 
         $len = strlen($prefix);
