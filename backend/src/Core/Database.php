@@ -7,6 +7,17 @@ use PDO;
 use PDOException;
 use RuntimeException;
 
+/**
+ * Database Connection — MySQL (PDO Singleton)
+ * Đọc cấu hình từ file .env thông qua App\Config\Env
+ *
+ * Biến .env cần thiết:
+ *   DB_HOST     — máy chủ MySQL (mặc định: db khi dùng Docker, localhost khi dev)
+ *   DB_PORT     — cổng MySQL (mặc định: 3306)
+ *   DB_NAME     — tên cơ sở dữ liệu (mặc định: QuanLyCuaHangVai)
+ *   DB_USER     — tên đăng nhập (mặc định: root)
+ *   DB_PASS     — mật khẩu (mặc định: rỗng)
+ */
 class Database
 {
     private static ?PDO $instance = null;
@@ -21,70 +32,29 @@ class Database
 
     private static function createConnection(): PDO
     {
-        $driver = strtolower(Env::get('DB_DRIVER', 'sqlsrv'));
-        $host = Env::get('DB_HOST', 'localhost');
-        $port = Env::get('DB_PORT', '1433');
+        $host     = Env::get('DB_HOST', 'db');
+        $port     = Env::get('DB_PORT', '3306');
         $database = Env::get('DB_NAME', 'QuanLyCuaHangVai');
-        $username = Env::get('DB_USER', 'sa');
+        $username = Env::get('DB_USER', 'root');
         $password = Env::get('DB_PASS', '');
 
-        $availableDrivers = PDO::getAvailableDrivers();
+        $dsn = "mysql:host=$host;port=$port;dbname=$database;charset=utf8mb4";
+
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
+        ];
 
         try {
-            if (($driver === 'sqlsrv' || $driver === 'sqlserver') && in_array('sqlsrv', $availableDrivers, true)) {
-                $dsn = "sqlsrv:Server=$host" . ($port ? ",$port" : "") . ";Database=$database;TrustServerCertificate=true";
-                return new PDO($dsn, $username, $password, [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                ]);
-            }
-
-            if (in_array('odbc', $availableDrivers, true)) {
-                $driverName = "{ODBC Driver 17 for SQL Server}";
-                $isTrusted = Env::get('DB_TRUSTED_CONNECTION', '') === 'true' || ($username === 'sa' && $password === '');
-                $authStr = $isTrusted ? "Trusted_Connection=yes;" : "Uid=$username;Pwd=$password;";
-                $serverTarget = ($host === 'localhost' || $host === '127.0.0.1') ? $host : ($port ? "$host,$port" : $host);
-                $dsn = "odbc:Driver=$driverName;Server=$serverTarget;Database=$database;$authStr";
-
-                try {
-                    return new PDO($dsn, $username, $password, [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    ]);
-                } catch (PDOException $e) {
-                    // Thử lại với Windows Authentication nếu xác thực SQL sa thất bại
-                    if (!$isTrusted) {
-                        try {
-                            $trustedDsn = "odbc:Driver=$driverName;Server=$serverTarget;Database=$database;Trusted_Connection=yes;";
-                            return new PDO($trustedDsn, null, null, [
-                                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                            ]);
-                        } catch (PDOException) {
-                            // Tiếp tục fallback bên dưới
-                        }
-                    }
-
-                    // Thử driver SQL Server mặc định của Windows
-                    $fallbackDsn = "odbc:Driver={SQL Server};Server=$serverTarget;Database=$database;" . ($isTrusted ? "Trusted_Connection=yes;" : "Uid=$username;Pwd=$password;");
-                    return new PDO($fallbackDsn, $username, $password, [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    ]);
-                }
-            }
-
-            if ($driver === 'mysql' || in_array('mysql', $availableDrivers, true)) {
-                $dsn = "mysql:host=$host;port=$port;dbname=$database;charset=utf8mb4";
-                return new PDO($dsn, $username, $password, [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                ]);
-            }
-
-            throw new RuntimeException("Không tìm thấy PDO driver phù hợp. Các driver hiện có: " . implode(', ', $availableDrivers));
+            return new PDO($dsn, $username, $password, $options);
         } catch (PDOException $e) {
-            throw new RuntimeException("Lỗi kết nối cơ sở dữ liệu: " . $e->getMessage(), (int)$e->getCode(), $e);
+            throw new RuntimeException(
+                "Lỗi kết nối MySQL [$host:$port/$database]: " . $e->getMessage(),
+                (int) $e->getCode(),
+                $e
+            );
         }
     }
 }

@@ -1,0 +1,109 @@
+# =====================================================================
+# docker-compose.yml — QuanLyCuaHangVai (DO_AN_PTWEB)
+# Stack: PHP 8.2 + Apache | MySQL 8.0 | phpMyAdmin
+#
+# Cách dùng:
+#   1. cp .env.example .env       # tạo file .env
+#   2. docker compose up -d       # khởi động toàn bộ
+#   3. Mở http://localhost:8000   # Backend API
+#   4. Mở http://localhost:8080   # phpMyAdmin
+# =====================================================================
+
+services:
+
+  # ─── Backend PHP + Apache ────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: quanly_backend
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8000}:80"
+    environment:
+      APP_ENV:              ${APP_ENV:-local}
+      DB_HOST:              db
+      DB_PORT:              3306
+      DB_NAME:              ${DB_NAME:-QuanLyCuaHangVai}
+      DB_USER:              ${DB_USER:-appuser}
+      DB_PASS:              ${DB_PASS:-secret}
+      JWT_SECRET:           ${JWT_SECRET:-changeme_replace_this_secret}
+      JWT_TTL_SECONDS:      ${JWT_TTL_SECONDS:-3600}
+      SESSION_NAME:         ${SESSION_NAME:-QUANLY_SESS}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+      MAIL_HOST:            ${MAIL_HOST:-}
+      MAIL_PORT:            ${MAIL_PORT:-587}
+      MAIL_USERNAME:        ${MAIL_USERNAME:-}
+      MAIL_PASSWORD:        ${MAIL_PASSWORD:-}
+      MAIL_FROM_ADDRESS:    ${MAIL_FROM_ADDRESS:-noreply@localhost}
+      MAIL_FROM_NAME:       ${MAIL_FROM_NAME:-QuanLyCuaHangVai}
+      FRONTEND_URL:         ${FRONTEND_URL:-http://localhost:5500}
+    volumes:
+      # Mount toàn bộ backend để hot-reload khi dev (tắt khi production)
+      - ./backend:/var/www/html
+      # Giữ storage logs ngoài container
+      - backend_storage:/var/www/html/storage
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - quanly_net
+
+  # ─── MySQL 8.0 ────────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: quanly_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS:-rootsecret}
+      MYSQL_DATABASE:      ${DB_NAME:-QuanLyCuaHangVai}
+      MYSQL_USER:          ${DB_USER:-appuser}
+      MYSQL_PASSWORD:      ${DB_PASS:-secret}
+    ports:
+      - "3306:3306"
+    volumes:
+      # Khởi tạo schema khi container MySQL khởi động lần đầu
+      - ./backend/database/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+      # Dữ liệu MySQL persistent
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost",
+             "-u", "root", "-p${DB_ROOT_PASS:-rootsecret}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - quanly_net
+
+  # ─── phpMyAdmin ───────────────────────────────────────────────────
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: quanly_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST:     db
+      PMA_PORT:     3306
+      PMA_USER:     root
+      PMA_PASSWORD: ${DB_ROOT_PASS:-rootsecret}
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - quanly_net
+
+# ─── Volumes ──────────────────────────────────────────────────────
+volumes:
+  mysql_data:
+    name: quanly_mysql_data
+  backend_storage:
+    name: quanly_backend_storage
+
+# ─── Networks ─────────────────────────────────────────────────────
+networks:
+  quanly_net:
+    name: quanly_network
+    driver: bridge
