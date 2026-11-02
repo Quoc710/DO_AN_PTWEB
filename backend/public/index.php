@@ -1,6 +1,15 @@
 <?php
-// Diem vao cua backend. Chay thu: php -S localhost:8000 -t public
-require __DIR__ . '/../vendor/autoload.php';
+declare(strict_types=1);
 
-header('Content-Type: application/json');
-echo json_encode(['status' => 'ok', 'message' => 'Backend is running']);
+/**
+ * Điểm vào của Backend (backend/public/index.php)
+ * Điều hướng tới Module Admin (Phân hệ Điều hành & Quản trị Vải - Đồng bộ Odoo)
+ */
+$autoloadPath = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($autoloadPath)) {
+    require_once $autoloadPath;
+}
+
+require_once __DIR__ . '/../src/Modules/Admin/routes.php';
+
+dispatchAdminModuleRoutes();

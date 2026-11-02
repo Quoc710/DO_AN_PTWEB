@@ -1,0 +1,22 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Cho phép truy cập trực tiếp các file tĩnh có thật (CSS, JS, Hình ảnh, Font)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Điều hướng mọi request khác về Front Controller index.php
+    RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+</IfModule>
+
+# Bảo vệ file cấu hình và file SQL không cho truy cập trực tiếp từ trình duyệt
+<FilesMatch "\.(sql|env|ini|log)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
