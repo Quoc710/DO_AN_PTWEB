@@ -25,21 +25,21 @@ $router = new Router();
 // Route kiểm tra máy chủ
 $router->get('/', function () {
     Response::json([
-        'status' => 'ok',
+        'status'  => 'ok',
         'message' => 'Backend Cửa hàng vải đang hoạt động.',
-        'time' => date('Y-m-d H:i:s'),
+        'time'    => date('Y-m-d H:i:s'),
     ]);
 });
 
 $router->get('/api/status', function () {
     Response::json([
         'status' => 'ok',
-        'app' => 'QuanLyCuaHangVai',
-        'env' => Env::get('APP_ENV', 'local'),
+        'app'    => 'QuanLyCuaHangVai',
+        'env'    => Env::get('APP_ENV', 'local'),
     ]);
 });
 
-// 5. Nạp routes của các Modules
+// 5. Nạp routes của tất cả Modules
 $moduleRoutes = [
     __DIR__ . '/../src/Modules/Tai_Khoan/routes.php',
     __DIR__ . '/../src/Modules/Admin/routes.php',
