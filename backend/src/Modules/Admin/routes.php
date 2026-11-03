@@ -45,7 +45,11 @@ function dispatchAdminModuleRoutes(): void
             'storeVoucher'    => 'storeVoucher',
             'store-voucher'   => 'storeVoucher',
             'moderateReview'  => 'moderateReview',
-            'moderate-review' => 'moderateReview'
+            'moderate-review' => 'moderateReview',
+            'approveLookbook' => 'approveLookbook',
+            'rejectLookbook' => 'rejectLookbook',
+            'approveWithdrawal' => 'approveWithdrawal',
+            'rejectWithdrawal' => 'rejectWithdrawal'
         ];
 
         $method = $routeMap[$action] ?? 'index';
@@ -74,5 +78,9 @@ return [
         'GET ?action=exportOdoo'      => [ProductController::class, 'exportOdoo'],
         'POST ?action=storeVoucher'   => [ProductController::class, 'storeVoucher'],
         'GET|POST ?action=moderateReview' => [ProductController::class, 'moderateReview'],
+        'POST ?action=approveLookbook' => [ProductController::class, 'approveLookbook'],
+        'POST ?action=rejectLookbook' => [ProductController::class, 'rejectLookbook'],
+        'POST ?action=approveWithdrawal' => [ProductController::class, 'approveWithdrawal'],
+        'POST ?action=rejectWithdrawal' => [ProductController::class, 'rejectWithdrawal'],
     ]
 ];

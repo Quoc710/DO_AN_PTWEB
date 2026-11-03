@@ -96,6 +96,11 @@ $projectRootDir = dirname(__DIR__, 5);
         <span class="text-slate-700 font-medium">Module 4: Quản trị Vải &amp; Đồng bộ Odoo</span>
       </div>
     </div>
+    <nav class="hidden xl:flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-100 p-1" aria-label="Phân hệ website">
+      <a href="<?= htmlspecialchars($routerUrl, ENT_QUOTES, 'UTF-8') ?>" class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white"><i class="fa-solid fa-gauge-high mr-1.5"></i>Trung tâm Admin</a>
+      <a href="<?= htmlspecialchars($routerUrl, ENT_QUOTES, 'UTF-8') ?>?module=lookbook&amp;tab=tailor" class="rounded-lg px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-white hover:text-slate-900"><i class="fa-solid fa-scissors mr-1.5"></i>Cổng Thợ May</a>
+      <a href="<?= htmlspecialchars($routerUrl, ENT_QUOTES, 'UTF-8') ?>?module=lookbook&amp;tab=lookbook" class="rounded-lg px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-white hover:text-slate-900"><i class="fa-solid fa-images mr-1.5"></i>Lookbook Khách Hàng</a>
+    </nav>
     <!-- Quick Status & Profile Area -->
     <div class="flex items-center space-x-5">
       <!-- Odoo Sync Pulse Badge -->
@@ -597,15 +602,14 @@ $projectRootDir = dirname(__DIR__, 5);
           <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Mục lục quản trị</span>
         </div>
         <nav class="space-y-1 px-3" id="sidebar-nav">
-          <!-- Item: Dashboard -->
-          <a class="sidebar-nav-link flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition text-xs font-medium"
-            data-target="tong-quan" href="#tong-quan">
-            <i class="nav-icon fa-solid fa-chart-pie w-4 text-center text-slate-400"
-              data-default-color="text-slate-400"></i>
-            <span>Tổng quan</span>
-          </a>
-          <!-- Item 1: Đồng bộ Odoo -->
           <a class="sidebar-nav-link flex items-center justify-between px-3.5 py-2.5 rounded-lg bg-slate-900 text-white font-medium text-xs shadow-sm transition"
+            data-target="admin-overview" href="#admin-overview">
+            <span class="flex items-center space-x-3"><i class="nav-icon fa-solid fa-gauge-high w-4 text-center text-slate-200" data-default-color="text-slate-400"></i><span>Trung tâm Admin</span></span>
+            <span class="text-[10px] rounded bg-white/20 px-1.5 py-0.5 font-semibold text-white"><?= count($pendingLookbooks ?? []) + count($pendingWithdrawals ?? []) ?> chờ xử lý</span>
+          </a>
+
+          <!-- Item 1: Đồng bộ Odoo -->
+          <a class="sidebar-nav-link flex items-center justify-between px-3.5 py-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition text-xs font-medium"
             data-target="dong-bo-odoo" href="#dong-bo-odoo">
             <div class="flex items-center space-x-3">
               <i class="nav-icon fa-solid fa-file-excel w-4 text-center text-emerald-400"

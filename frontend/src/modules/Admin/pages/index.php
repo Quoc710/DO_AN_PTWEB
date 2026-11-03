@@ -51,14 +51,15 @@ if (!empty($orders)) {
           class="fa-solid fa-xmark"></i></button>
     </div>
   <?php endif; ?>
+  <?php require __DIR__ . '/operations.php'; ?>
   <!-- Top Title Bar of Workspace -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2">
     <div>
       <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
-        <span>Trung tâm Điều hành (Module 4)</span>
+        <span>Quản trị cửa hàng Aura</span>
       </h1>
       <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
-        Tập trung thao tác mẫu vải mới, xuất file kết nối Odoo ERP, quản lý voucher và xử lý kiểm duyệt đánh giá.
+        Tổng quan Lookbook & hoa hồng, cùng các công cụ quản lý vải, Odoo, voucher và đánh giá.
       </p>
     </div>
     <div class="flex items-center space-x-3 bg-white px-3.5 py-2 rounded-lg border border-slate-200 shadow-sm">

@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../Models/ProductModel.php';
+require_once __DIR__ . '/../Models/AdminOperationsModel.php';
 
 /**
  * ProductController - Điều phối toàn bộ luồng nghiệp vụ cho Module 4 (Aura Admin Portal)
@@ -10,6 +11,7 @@ require_once __DIR__ . '/../Models/ProductModel.php';
 class ProductController
 {
     private ProductModel $productModel;
+    private AdminOperationsModel $adminOperationsModel;
     private string $projectRoot;
 
     public function __construct()
@@ -19,6 +21,7 @@ class ProductController
         }
         $this->projectRoot = dirname(__DIR__, 5);
         $this->productModel = new ProductModel();
+        $this->adminOperationsModel = new AdminOperationsModel();
     }
 
     /**
@@ -44,6 +47,8 @@ class ProductController
             $vouchers     = $this->productModel->getAllVouchers();
             $reviews      = $this->productModel->getAllReviews($reviewFilter);
             $reviewCounts = $this->productModel->getReviewCounts();
+            $pendingLookbooks = $this->adminOperationsModel->getPendingLookbooks();
+            $pendingWithdrawals = $this->adminOperationsModel->getPendingWithdrawals();
 
             // Nếu đang chọn sửa 1 mẫu vải cụ thể trên giao diện
             $editingFabric = null;
@@ -197,6 +202,66 @@ class ProductController
      * Chuẩn cấu trúc sales.order của Odoo ERP:
      * External ID, Order Reference, Customer, Phone, Order Date, Order Lines/Product SKU, Order Lines/Quantity (m), Total Amount
      */
+    /** Approve a pending partner Lookbook post. */
+    public function approveLookbook(): void
+    {
+        $this->processLookbookDecision('Đã duyệt');
+    }
+
+    /** Reject a pending partner Lookbook post. */
+    public function rejectLookbook(): void
+    {
+        $this->processLookbookDecision('Từ chối');
+    }
+
+    private function processLookbookDecision(string $status): void
+    {
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                throw new RuntimeException('Thao tác duyệt Lookbook cần dùng POST.');
+            }
+            $lookbookId = (int) ($_POST['ma_lookbook'] ?? 0);
+            $this->adminOperationsModel->updateLookbookStatus($lookbookId, $status);
+            $message = $status === 'Đã duyệt'
+                ? "Đã duyệt bài Lookbook #{$lookbookId}."
+                : "Đã từ chối bài Lookbook #{$lookbookId}.";
+            $this->respondSuccess($message, '#admin-overview');
+        } catch (Throwable $e) {
+            $this->respondError($e->getMessage(), '#admin-overview');
+        }
+    }
+
+    /** Approve a withdrawal and atomically update the wallet and ledger. */
+    public function approveWithdrawal(): void
+    {
+        $this->processWithdrawalDecision(true);
+    }
+
+    /** Reject a withdrawal request. */
+    public function rejectWithdrawal(): void
+    {
+        $this->processWithdrawalDecision(false);
+    }
+
+    private function processWithdrawalDecision(bool $approved): void
+    {
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                throw new RuntimeException('Thao tác xử lý rút tiền cần dùng POST.');
+            }
+            $requestId = (int) ($_POST['ma_yeu_cau'] ?? 0);
+            if ($approved) {
+                $this->adminOperationsModel->approveWithdrawal($requestId);
+                $message = "Đã duyệt lệnh rút tiền #{$requestId}; số dư ví và lịch sử đã được cập nhật.";
+            } else {
+                $this->adminOperationsModel->rejectWithdrawal($requestId);
+                $message = "Đã từ chối lệnh rút tiền #{$requestId}.";
+            }
+            $this->respondSuccess($message, '#admin-overview');
+        } catch (Throwable $e) {
+            $this->respondError($e->getMessage(), '#admin-overview');
+        }
+    }
     public function exportOdoo(): void
     {
         try {

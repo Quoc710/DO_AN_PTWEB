@@ -1,0 +1,66 @@
+name: webadmin
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "8082:80"
+    volumes:
+      - ./:/var/www/html
+    environment: &db-env
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: QuanLyCuaHangVai
+      DB_USER: root
+      DB_PASS: ${MYSQL_ROOT_PASSWORD:-root}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8002:80"
+    volumes:
+      - ./:/var/www/html
+    environment: *db-env
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  phpmyadmin:
+    image: phpmyadmin:5.2-apache
+    ports:
+      - "8083:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: QuanLyCuaHangVai
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/database/migrations/schema_mysql.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./backend/database/migrations/20261103_admin_lookbook_affiliate.sql:/docker-entrypoint-initdb.d/02-admin-operations.sql:ro
+      - ./backend/database/migrations/20261104_lookbook_affiliate_seed.sql:/docker-entrypoint-initdb.d/03-lookbook-affiliate-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  mysql_data:
