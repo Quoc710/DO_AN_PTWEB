@@ -45,6 +45,13 @@ class LookbookAffiliateController
         $category = (string) ($_GET['category'] ?? 'Tất cả mẫu');
         $refCode = trim((string) ($_GET['ref'] ?? ''));
         $fabricFilter = trim((string) ($_GET['fabric'] ?? ''));
+
+        $filters = [
+            'keyword' => trim((string) ($_GET['keyword'] ?? '')),
+            'mau_sac' => trim((string) ($_GET['mau_sac'] ?? '')),
+        ];
+        $filterOptions = ['mau_sac' => []];
+
         $referralTailor = null;
         $lookbooks = [];
         $allTailors = [];
@@ -71,7 +78,9 @@ class LookbookAffiliateController
                     }
                 }
                 $tailor = $this->affiliateModel->getTailorProfile($currentTailorId);
-                $lookbooks = $this->lookbookModel->getLookbooks($category, true);
+                $filterOptions = $this->lookbookModel->getFilterOptions();
+                $lookbooks = $this->lookbookModel->getLookbooks($category, true, $filters);
+                
                 if ($fabricFilter !== '') {
                     $filtered = array_values(array_filter($lookbooks, static function (array $item) use ($fabricFilter): bool {
                         return stripos(str_replace('#', '', (string) ($item['MaVaiCode'] ?? '')), str_replace('#', '', $fabricFilter)) !== false;
@@ -134,7 +143,7 @@ class LookbookAffiliateController
 
                     $data = [
                         'tenLookbook' => trim((string) ($_POST['tenLookbook'] ?? 'Thiết kế mới')),
-                        'urlHinhAnh' => $imageUrl ?: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600',
+                        'urlHinhAnh' => $imageUrl ?: '',
                         'danhMuc' => (string) ($_POST['danhMuc'] ?? 'Đầm & Váy'),
                         'maBienThe' => max(1, (int) ($_POST['maBienThe'] ?? 1)),
                         'dinhLuong' => trim((string) ($_POST['dinhLuong'] ?? '2.0m vải')),
@@ -204,7 +213,7 @@ class LookbookAffiliateController
             $tab = 'tailor';
         }
         $query = ['module' => 'lookbook', 'tab' => $tab, 'tailor_id' => $currentTailorId];
-        foreach (['ref', 'fabric', 'category'] as $key) {
+        foreach (['ref', 'fabric', 'category', 'mau_sac', 'keyword'] as $key) {
             if (!empty($_GET[$key])) {
                 $query[$key] = (string) $_GET[$key];
             }
