@@ -26,9 +26,22 @@ class DonHangController
             $keyword = Request::query('q', null);
             $date = Request::query('date', null);
             $status = Request::query('status', null);
+            $maKH = Request::query('maKH', null);
 
-            $orders = $this->service->getOrders($keyword, $date, $status);
-            $stats = $this->service->getOrderStatistics();
+            // Tự động nhận diện MaKH nếu khách hàng gửi token / session
+            if ($maKH === null || $maKH === '') {
+                $sessionUser = \App\Core\Session::get('user');
+                if ($sessionUser && !empty($sessionUser['MaKH']) && empty($sessionUser['MaTK']) && ($sessionUser['LoaiTK'] ?? '') !== 'admin') {
+                    $maKH = (int)$sessionUser['MaKH'];
+                } else {
+                    $maKH = null;
+                }
+            } else {
+                $maKH = (int)$maKH;
+            }
+
+            $orders = $this->service->getOrders($keyword, $date, $status, $maKH);
+            $stats = $this->service->getOrderStatistics($maKH);
 
             Response::success([
                 'orders' => $orders,

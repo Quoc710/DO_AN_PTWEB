@@ -31,6 +31,14 @@ class Database
         $availableDrivers = PDO::getAvailableDrivers();
 
         try {
+            if ($driver === 'mysql' && in_array('mysql', $availableDrivers, true)) {
+                $dsn = "mysql:host=$host;port=$port;dbname=$database;charset=utf8mb4";
+                return new PDO($dsn, $username, $password, [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                ]);
+            }
+
             if (($driver === 'sqlsrv' || $driver === 'sqlserver') && in_array('sqlsrv', $availableDrivers, true)) {
                 $dsn = "sqlsrv:Server=$host" . ($port ? ",$port" : "") . ";Database=$database;TrustServerCertificate=true";
                 return new PDO($dsn, $username, $password, [
@@ -39,7 +47,7 @@ class Database
                 ]);
             }
 
-            if (in_array('odbc', $availableDrivers, true)) {
+            if (($driver === 'sqlsrv' || $driver === 'sqlserver' || $driver === 'odbc') && in_array('odbc', $availableDrivers, true)) {
                 $driverName = "{ODBC Driver 17 for SQL Server}";
                 $isTrusted = Env::get('DB_TRUSTED_CONNECTION', '') === 'true' || ($username === 'sa' && $password === '');
                 $authStr = $isTrusted ? "Trusted_Connection=yes;" : "Uid=$username;Pwd=$password;";

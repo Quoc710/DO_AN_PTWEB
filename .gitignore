@@ -44,6 +44,7 @@ build/
 
 # 4. Logs & Storage (File nhật ký & lưu trữ tạm)
 *.log
+scratch/
 backend/storage/logs/*.log
 backend/storage/mail_logs/*
 !backend/storage/mail_logs/.gitkeep

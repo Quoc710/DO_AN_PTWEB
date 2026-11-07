@@ -114,10 +114,10 @@
         <span class="font-headline-sm text-base text-on-surface tracking-tight font-semibold">Aura Minimal</span>
       </div>
       <nav class="px-space-sm pt-space-md flex flex-col gap-space-xs">
-        <a class="flex items-center px-space-md py-space-sm text-secondary hover:bg-surface-container-high hover:text-on-surface font-medium rounded-lg text-sm transition-colors" href="../../Tai_khoan/pages/dashboard.html">
+        <a class="flex items-center px-space-md py-space-sm text-secondary hover:bg-surface-container-high hover:text-on-surface font-medium rounded-lg text-sm transition-colors" href="/?module=dashboard">
           <span class="material-symbols-outlined text-[20px] mr-space-sm">account_circle</span>Tài khoản của tôi
         </a>
-        <a class="flex items-center px-space-md py-space-sm bg-primary text-on-primary font-medium rounded-lg text-sm transition-colors" href="don_hang.html">
+        <a class="flex items-center px-space-md py-space-sm bg-primary text-on-primary font-medium rounded-lg text-sm transition-colors" href="/?module=don-hang">
           <span class="material-symbols-outlined text-[20px] mr-space-sm">inventory_2</span>Đơn hàng của tôi
         </a>
       </nav>
@@ -143,26 +143,35 @@
         <span class="text-primary font-medium">LỊCH SỬ & THEO DÕI</span>
       </div>
       
-      <!-- User Menu Dropdown -->
-      <div class="relative flex items-center gap-space-md">
-        <button id="user-menu-btn" onclick="toggleUserDropdown()" aria-expanded="false" class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary hover:bg-surface-variant transition-colors" type="button">
-          <span class="material-symbols-outlined text-on-primary text-[18px]">person</span>
-        </button>
-        
-        <div id="user-dropdown" class="hidden absolute right-0 top-12 w-64 bg-surface-container-lowest rounded-lg border border-outline-variant/40 shadow-lg p-space-md z-50">
-          <div class="pb-space-sm">
-            <p class="font-headline-sm text-sm text-on-surface font-semibold leading-tight" id="header-user-name">Đang tải...</p>
-            <p class="font-caption text-xs text-secondary font-label-code-sm" id="header-user-email">@username</p>
+      <div class="flex items-center gap-3">
+        <!-- Nút Về Cửa Hàng / Lookbook -->
+        <a href="/?module=lookbook" class="text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 border border-indigo-200">
+          <span class="material-symbols-outlined text-[16px]">storefront</span> Cửa hàng / Lookbook
+        </a>
+
+        <!-- User Menu Dropdown -->
+        <div class="relative flex items-center gap-space-md">
+          <button id="user-menu-btn" onclick="toggleUserDropdown()" aria-expanded="false" class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-on-primary hover:bg-surface-variant transition-colors font-bold text-xs" type="button">
+            <span id="header-avatar-letter">A</span>
+          </button>
+          
+          <div id="user-dropdown" class="hidden absolute right-0 top-12 w-64 bg-surface-container-lowest rounded-lg border border-outline-variant/40 shadow-lg p-space-md z-50">
+            <div class="pb-space-sm">
+              <p class="font-headline-sm text-sm text-on-surface font-semibold leading-tight" id="header-user-name">Đang tải...</p>
+              <p class="font-caption text-xs text-secondary font-label-code-sm" id="header-user-email">@username</p>
+              <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold mt-1 bg-surface-container-high text-on-surface" id="header-user-role">Khách Hàng</span>
+            </div>
+            <div class="h-px bg-outline-variant/30 my-space-xs"></div>
+            <div class="flex flex-col py-space-xs">
+              <a class="px-space-sm py-space-xs rounded font-body-sm text-xs text-secondary hover:bg-surface-container-high hover:text-on-surface transition-colors" href="/?module=dashboard">Hồ sơ của tôi</a>
+              <a class="px-space-sm py-space-xs rounded font-body-sm text-xs text-primary font-medium bg-surface-container-low transition-colors" href="/?module=don-hang">Đơn mua của tôi</a>
+              <a class="px-space-sm py-space-xs rounded font-body-sm text-xs text-secondary hover:bg-surface-container-high hover:text-on-surface transition-colors" href="/?module=lookbook">Xem Lookbook & Vải</a>
+            </div>
+            <div class="h-px bg-outline-variant/30 my-space-xs"></div>
+            <a class="flex items-center gap-space-xs px-space-sm py-space-xs rounded font-body-sm text-xs text-error hover:bg-error-container transition-colors" href="/?module=auth" onclick="handleLogout()">
+              <span class="material-symbols-outlined text-[16px]">logout</span>Đăng xuất
+            </a>
           </div>
-          <div class="h-px bg-outline-variant/30 my-space-xs"></div>
-          <div class="flex flex-col py-space-xs">
-            <a class="px-space-sm py-space-xs rounded font-body-sm text-xs text-secondary hover:bg-surface-container-high hover:text-on-surface transition-colors" href="../../Tai_khoan/pages/dashboard.html">Hồ sơ của tôi</a>
-            <a class="px-space-sm py-space-xs rounded font-body-sm text-xs text-primary font-medium bg-surface-container-low transition-colors" href="don_hang.html">Đơn mua của tôi</a>
-          </div>
-          <div class="h-px bg-outline-variant/30 my-space-xs"></div>
-          <a class="flex items-center gap-space-xs px-space-sm py-space-xs rounded font-body-sm text-xs text-error hover:bg-error-container transition-colors" href="../../Tai_khoan/pages/auth.html" onclick="handleLogout()">
-            <span class="material-symbols-outlined text-[16px]">logout</span>Đăng xuất
-          </a>
         </div>
       </div>
     </header>
@@ -241,13 +250,13 @@
           <div class="w-16 h-16 rounded-full bg-secondary-container/50 flex items-center justify-center text-secondary mb-space-md">
             <span class="material-symbols-outlined text-[32px]">inventory_2</span>
           </div>
-          <h3 class="font-headline-md text-base text-on-surface font-semibold mb-space-xs">Chưa có đơn hàng nào ở trạng thái này</h3>
+          <h3 class="font-headline-md text-base text-on-surface font-semibold mb-space-xs">Chưa có đơn hàng nào</h3>
           <p class="font-body-sm text-xs text-secondary max-w-md mb-space-lg">
-            Mọi kiện hàng bạn đặt sẽ tự động cập nhật lộ trình giao nhận và trạng thái tại đây.
+            Bạn chưa có đơn đặt mua vải nào. Hãy ghé qua Lookbook để lựa chọn mẫu thiết kế và đặt may thước vải ưng ý nhất!
           </p>
-          <a class="inline-flex items-center gap-space-xs px-space-lg py-space-sm rounded-lg bg-primary text-on-primary font-body-sm text-xs font-medium hover:bg-inverse-surface transition-colors" href="javascript:void(0)" onclick="setFilter('all')">
-            <span>Xem tất cả đơn hàng</span>
-            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          <a class="inline-flex items-center gap-space-xs px-space-lg py-space-sm rounded-lg bg-primary text-on-primary font-body-sm text-xs font-medium hover:bg-inverse-surface transition-colors" href="/?module=lookbook">
+            <span class="material-symbols-outlined text-[16px]">storefront</span>
+            <span>Khám phá Lookbook & Mua sắm</span>
           </a>
         </div>
 
@@ -257,8 +266,7 @@
   </div>
 
   <script>
-    const currentHost = window.location.hostname || 'localhost';
-    const API_BASE = `http://${currentHost}:8000`;
+    const API_BASE = '';
     let currentFilter = 'all';
     let searchTimeout = null;
 
@@ -287,7 +295,7 @@
     function handleLogout() {
       localStorage.removeItem('aura_user');
       localStorage.removeItem('aura_token');
-      window.location.href = '../../Tai_khoan/pages/auth.html';
+      window.location.href = '/?module=auth';
     }
 
     function toggleOrderDetail(detailId, chevronId) {
@@ -457,7 +465,21 @@
       const emptyState = document.getElementById('emptyOrdersState');
       const q = document.getElementById('search-input').value.trim();
 
+      // Nhận diện mã khách hàng từ cache để lọc chính xác đơn của tài khoản
+      let currentMaKH = null;
+      try {
+        const raw = localStorage.getItem('aura_user');
+        if (raw) {
+          const user = JSON.parse(raw);
+          const loai = String(user.LoaiTK || user.LoaiKhach || '').toLowerCase();
+          if (loai !== 'admin' && user.MaKH) {
+            currentMaKH = user.MaKH;
+          }
+        }
+      } catch (e) {}
+
       let url = `${API_BASE}/api/don-hang?status=${encodeURIComponent(currentFilter)}`;
+      if (currentMaKH) url += `&maKH=${encodeURIComponent(currentMaKH)}`;
       if (q) url += `&q=${encodeURIComponent(q)}`;
 
       try {
@@ -694,8 +716,16 @@
           const user = JSON.parse(raw);
           const nameEl = document.getElementById('header-user-name');
           const emailEl = document.getElementById('header-user-email');
-          if (nameEl && user.TenNV) nameEl.textContent = user.TenNV;
-          if (emailEl && (user.Email || user.TenTK)) emailEl.textContent = '@' + (user.TenTK || user.Email);
+          const roleEl = document.getElementById('header-user-role');
+          const avatarEl = document.getElementById('header-avatar-letter');
+          const fullName = user.TenKH || user.TenNV || user.TenTK || 'Khách hàng';
+          const userRole = (user.LoaiTK === 'affiliate' || user.LoaiKhach === 'Affiliate') 
+            ? 'Thợ May (Affiliate)' 
+            : (user.LoaiTK === 'admin' ? 'Quản trị viên' : 'Khách Hàng');
+          if (nameEl) nameEl.textContent = fullName;
+          if (emailEl) emailEl.textContent = user.Email || ('@' + user.TenTK);
+          if (roleEl) roleEl.textContent = userRole;
+          if (avatarEl) avatarEl.textContent = fullName.trim().charAt(0).toUpperCase();
         }
       } catch (e) {}
 

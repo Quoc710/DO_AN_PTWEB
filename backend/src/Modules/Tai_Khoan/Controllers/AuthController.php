@@ -19,6 +19,18 @@ class AuthController
 
     private function attachToken(array $user): array
     {
+        // Khách hàng / Affiliate dùng MaKH
+        if (!empty($user['MaKH']) && empty($user['MaTK'])) {
+            $payload = [
+                'MaKH'  => $user['MaKH'],
+                'Email' => $user['Email'] ?? '',
+                'time'  => time(),
+            ];
+            $user['token'] = base64_encode(json_encode($payload));
+            return $user;
+        }
+
+        // Nhân viên / Admin dùng MaTK
         $payload = [
             'MaTK' => $user['MaTK'],
             'TenTK' => $user['TenTK'],
@@ -209,4 +221,53 @@ HTML;
         $this->authService->logout();
         Response::success(null, 'Đăng xuất thành công');
     }
+
+    public function registerKhachHang(): void
+    {
+        $body = Request::body();
+        $tenKH    = $body['tenKH'] ?? $body['fullname'] ?? '';
+        $email    = $body['email'] ?? '';
+        $password = $body['password'] ?? '';
+        $sdt      = $body['sdt'] ?? null;
+
+        try {
+            $result = $this->authService->registerKhachHang($tenKH, $email, $password, $sdt);
+            Response::success($result, $result['message'], 201);
+        } catch (\Exception $e) {
+            Response::error($e->getMessage(), 400);
+        }
+    }
+
+    public function registerAffiliate(): void
+    {
+        $body = Request::body();
+        $tenKH    = $body['tenKH'] ?? $body['fullname'] ?? '';
+        $email    = $body['email'] ?? '';
+        $password = $body['password'] ?? '';
+        $sdt      = $body['sdt'] ?? null;
+
+        try {
+            $result = $this->authService->registerAffiliate($tenKH, $email, $password, $sdt);
+            Response::success($result, $result['message'], 201);
+        } catch (\Exception $e) {
+            Response::error($e->getMessage(), 400);
+        }
+    }
+
+    public function loginKhachHang(): void
+    {
+        $body = Request::body();
+        $email    = $body['email'] ?? $body['username'] ?? '';
+        $password = $body['password'] ?? '';
+
+        try {
+            $user = $this->authService->loginKhachHang($email, $password);
+            $payload = ['MaKH' => $user['MaKH'], 'Email' => $user['Email'], 'time' => time()];
+            $user['token'] = base64_encode(json_encode($payload));
+            Response::success($user, 'Đăng nhập thành công');
+        } catch (\Exception $e) {
+            Response::error($e->getMessage(), 401);
+        }
+    }
 }
+

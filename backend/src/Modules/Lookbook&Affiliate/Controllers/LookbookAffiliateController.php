@@ -36,6 +36,24 @@ class LookbookAffiliateController
             header('Location: index.php');
             exit;
         }
+
+        // KIỂM TRA PHÂN QUYỀN TRUY CẬP CỔNG THỢ MAY (TAB TAILOR)
+        $sessionUser = $_SESSION['user'] ?? null;
+        $loaiTK = strtolower((string)($sessionUser['LoaiTK'] ?? $sessionUser['LoaiKhach'] ?? ''));
+        $isAffiliate = ($loaiTK === 'admin' 
+            || strpos($loaiTK, 'affiliate') !== false 
+            || strpos($loaiTK, 'thợ may') !== false 
+            || strpos($loaiTK, 'tho may') !== false 
+            || strpos($loaiTK, 'nhà may') !== false 
+            || strpos($loaiTK, 'nha may') !== false);
+
+        if ($tab === 'tailor' && !$isAffiliate) {
+            $_SESSION['flash_msg'] = '⛔ QUYỀN TRUY CẬP BỊ TỪ CHỐI: Bạn đang là tài khoản Khách Hàng. Chỉ đối tác Thợ May (Affiliate) đã được Admin duyệt mới được vào Cổng Thợ May!';
+            $_SESSION['flash_type'] = 'warning';
+            header('Location: ?module=lookbook&tab=lookbook');
+            exit;
+        }
+
         if (!in_array($tab, ['tailor', 'lookbook'], true)) {
             $tab = 'lookbook';
         }

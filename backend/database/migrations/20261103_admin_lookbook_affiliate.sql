@@ -1,6 +1,7 @@
 -- Add the Lookbook moderation and affiliate withdrawal schema used by the Admin portal.
 -- Apply once after schema_mysql.sql.
 USE QuanLyCuaHangVai;
+SET NAMES utf8mb4;
 
 ALTER TABLE NHAN_VIEN
     ADD COLUMN SDT VARCHAR(15) NULL,

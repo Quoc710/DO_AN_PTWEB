@@ -1,5 +1,6 @@
 -- Development data that makes both partner and customer Lookbook paths usable immediately.
 USE QuanLyCuaHangVai;
+SET NAMES utf8mb4;
 
 INSERT INTO NHAN_VIEN (TenNV, ViTri, SDT, SoTaiKhoan, NganHang, TenTiemMay, CapBac, AffiliateCode)
 SELECT 'Nguyễn Thị Minh Anh', 'Thợ may', '0901000002', '0123456789', 'Vietcombank', 'Tiệm may Minh Anh', 'Đối tác vàng', 'minhanh'

@@ -18,7 +18,7 @@ class DonHangService
     /**
      * Lấy danh sách phiếu bán (đơn hàng) từ CSDL QuanLyCuaHangVai
      */
-    public function getOrders(?string $keyword = null, ?string $ngayBan = null, ?string $status = null): array
+    public function getOrders(?string $keyword = null, ?string $ngayBan = null, ?string $status = null, ?int $maKH = null): array
     {
         $sql = "
             SELECT 
@@ -26,7 +26,7 @@ class DonHangService
                 pb.MaKH,
                 pb.NgayBan,
                 pb.TongTien,
-                COALESCE(pb.TrangThai, N'Chờ xác nhận') AS TrangThai,
+                COALESCE(pb.TrangThai, 'Chờ xác nhận') AS TrangThai,
                 kh.TenKH,
                 kh.SDT,
                 kh.LoaiKhach,
@@ -38,15 +38,20 @@ class DonHangService
 
         $params = [];
 
+        if (!empty($maKH) && $maKH > 0) {
+            $sql .= " AND pb.MaKH = :maKH";
+            $params['maKH'] = $maKH;
+        }
+
         if (!empty($status) && $status !== 'all') {
             if ($status === 'pending') {
-                $sql .= " AND (pb.TrangThai = N'Chờ xác nhận' OR pb.TrangThai LIKE '%x%c%nh%n%' OR pb.TrangThai LIKE '%Ch%')";
+                $sql .= " AND (pb.TrangThai = 'Chờ xác nhận' OR pb.TrangThai LIKE '%x%c%nh%n%' OR pb.TrangThai LIKE '%Ch%')";
             } elseif ($status === 'shipping') {
-                $sql .= " AND (pb.TrangThai = N'Đang giao' OR (pb.TrangThai LIKE '%giao%' AND pb.TrangThai NOT LIKE N'%Đã%'))";
+                $sql .= " AND (pb.TrangThai = 'Đang giao' OR (pb.TrangThai LIKE '%giao%' AND pb.TrangThai NOT LIKE '%Đã%'))";
             } elseif ($status === 'completed') {
-                $sql .= " AND (pb.TrangThai = N'Đã giao' OR (pb.TrangThai LIKE '%giao%' AND (pb.TrangThai LIKE N'%Đã%' OR pb.TrangThai LIKE '%d%')))";
+                $sql .= " AND (pb.TrangThai = 'Đã giao' OR (pb.TrangThai LIKE '%giao%' AND (pb.TrangThai LIKE '%Đã%' OR pb.TrangThai LIKE '%d%')))";
             } elseif ($status === 'cancelled') {
-                $sql .= " AND (pb.TrangThai = N'Đã hủy' OR pb.TrangThai LIKE '%h%y%')";
+                $sql .= " AND (pb.TrangThai = 'Đã hủy' OR pb.TrangThai LIKE '%h%y%')";
             } else {
                 $sql .= " AND pb.TrangThai = :status";
                 $params['status'] = $status;
@@ -205,8 +210,58 @@ class DonHangService
     /**
      * Thống kê tổng quan từ cơ sở dữ liệu
      */
-    public function getOrderStatistics(): array
+    public function getOrderStatistics(?int $maKH = null): array
     {
+        if (!empty($maKH) && $maKH > 0) {
+            $statStmt = $this->db->prepare("
+                SELECT 
+                    COUNT(pb.MaPhieuBan) AS TongSoDon,
+                    COALESCE(SUM(pb.TongTien), 0) AS TongDoanhThu,
+                    COALESCE((SELECT SUM(ct.SoLuongBan) FROM CT_PHIEU_BAN ct JOIN PHIEU_BAN p ON ct.MaPhieuBan = p.MaPhieuBan WHERE p.MaKH = :maKH1), 0) AS TongSoLuongSanPham,
+                    1 AS TongSoKhachHang
+                FROM PHIEU_BAN pb
+                WHERE pb.MaKH = :maKH2
+            ");
+            $statStmt->execute(['maKH1' => $maKH, 'maKH2' => $maKH]);
+            $stat = $statStmt->fetch(PDO::FETCH_ASSOC);
+
+            $statusCounts = [
+                'all' => (int)($stat['TongSoDon'] ?? 0),
+                'pending' => 0,
+                'shipping' => 0,
+                'completed' => 0,
+                'cancelled' => 0,
+            ];
+
+            try {
+                $rowsStmt = $this->db->prepare("
+                    SELECT TrangThai, COUNT(*) AS cnt 
+                    FROM PHIEU_BAN 
+                    WHERE MaKH = :maKH
+                    GROUP BY TrangThai
+                ");
+                $rowsStmt->execute(['maKH' => $maKH]);
+                $rows = $rowsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                foreach ($rows as $r) {
+                    $st = self::normalizeStatus($r['TrangThai'] ?? '');
+                    $cnt = (int)$r['cnt'];
+                    if ($st === 'Chờ xác nhận') $statusCounts['pending'] += $cnt;
+                    elseif ($st === 'Đang giao') $statusCounts['shipping'] += $cnt;
+                    elseif ($st === 'Đã giao') $statusCounts['completed'] += $cnt;
+                    elseif ($st === 'Đã hủy') $statusCounts['cancelled'] += $cnt;
+                }
+            } catch (\Throwable $e) {}
+
+            return [
+                'TongSoDon' => (int)($stat['TongSoDon'] ?? 0),
+                'TongDoanhThu' => (float)($stat['TongDoanhThu'] ?? 0),
+                'TongSoLuongSanPham' => (float)($stat['TongSoLuongSanPham'] ?? 0),
+                'TongSoKhachHang' => 1,
+                'statusCounts' => $statusCounts,
+            ];
+        }
+
         $stat = $this->db->query("
             SELECT 
                 COUNT(pb.MaPhieuBan) AS TongSoDon,

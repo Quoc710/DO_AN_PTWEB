@@ -20,7 +20,7 @@ class TaiKhoanModel
 
     public function findByUsername(string $username): ?array
     {
-        $sql = "SELECT tk.MaTK, tk.MaNV, tk.TenTK, tk.MatKhauHash, tk.Email, tk.TrangThai, tk.TokenKichHoat, tk.HanKichHoat, nv.TenNV, nv.ViTri
+        $sql = "SELECT tk.MaTK, tk.MaNV, tk.TenTK, tk.MatKhauHash, tk.Email, tk.TrangThai, tk.LoaiTK, nv.TenNV, nv.ViTri
                 FROM TAI_KHOAN tk
                 JOIN NHAN_VIEN nv ON tk.MaNV = nv.MaNV
                 WHERE tk.TenTK = ? OR tk.Email = ?";
@@ -40,7 +40,7 @@ class TaiKhoanModel
 
     public function findById(int $maTK): ?array
     {
-        $sql = "SELECT tk.MaTK, tk.MaNV, tk.TenTK, tk.Email, tk.TrangThai, nv.TenNV, nv.ViTri
+        $sql = "SELECT tk.MaTK, tk.MaNV, tk.TenTK, tk.Email, tk.TrangThai, tk.LoaiTK, nv.TenNV, nv.ViTri
                 FROM TAI_KHOAN tk
                 JOIN NHAN_VIEN nv ON tk.MaNV = nv.MaNV
                 WHERE tk.MaTK = ?";
@@ -82,41 +82,22 @@ class TaiKhoanModel
 
         try {
             // 1. Thêm nhân viên
-            $maNV = null;
-            try {
-                $sqlNV = "INSERT INTO NHAN_VIEN (TenNV, ViTri) OUTPUT INSERTED.MaNV VALUES (?, ?)";
-                $stmtNV = $db->prepare($sqlNV);
-                $stmtNV->execute([$tenNV, $viTri]);
-                $rowNV = $stmtNV->fetch();
-                $maNV = $rowNV['MaNV'] ?? null;
-            } catch (Exception) {
-                $sqlNV = "INSERT INTO NHAN_VIEN (TenNV, ViTri) VALUES (?, ?)";
-                $stmtNV = $db->prepare($sqlNV);
-                $stmtNV->execute([$tenNV, $viTri]);
-                $maNV = $db->lastInsertId();
-            }
+            $sqlNV = "INSERT INTO NHAN_VIEN (TenNV, ViTri) VALUES (?, ?)";
+            $stmtNV = $db->prepare($sqlNV);
+            $stmtNV->execute([$tenNV, $viTri]);
+            $maNV = $db->lastInsertId();
 
             if (!$maNV) {
                 throw new Exception("Không thể tạo bản ghi nhân viên.");
             }
 
             // 2. Thêm tài khoản (Trạng thái mặc định: Chưa kích hoạt)
-            $maTK = null;
             $trangThai = 'Chưa kích hoạt';
-            try {
-                $sqlTK = "INSERT INTO TAI_KHOAN (MaNV, TenTK, MatKhauHash, Email, TrangThai, TokenKichHoat, HanKichHoat) 
-                          OUTPUT INSERTED.MaTK VALUES (?, ?, ?, ?, ?, ?, ?)";
-                $stmtTK = $db->prepare($sqlTK);
-                $stmtTK->execute([$maNV, $tenTK, $matKhauHash, $email, $trangThai, $tokenKichHoat, $hanKichHoat]);
-                $rowTK = $stmtTK->fetch();
-                $maTK = $rowTK['MaTK'] ?? null;
-            } catch (Exception) {
-                $sqlTK = "INSERT INTO TAI_KHOAN (MaNV, TenTK, MatKhauHash, Email, TrangThai, TokenKichHoat, HanKichHoat) 
-                          VALUES (?, ?, ?, ?, ?, ?, ?)";
-                $stmtTK = $db->prepare($sqlTK);
-                $stmtTK->execute([$maNV, $tenTK, $matKhauHash, $email, $trangThai, $tokenKichHoat, $hanKichHoat]);
-                $maTK = $db->lastInsertId();
-            }
+            $sqlTK = "INSERT INTO TAI_KHOAN (MaNV, TenTK, MatKhauHash, Email, TrangThai, TokenKichHoat, HanKichHoat) 
+                      VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $stmtTK = $db->prepare($sqlTK);
+            $stmtTK->execute([$maNV, $tenTK, $matKhauHash, $email, $trangThai, $tokenKichHoat, $hanKichHoat]);
+            $maTK = $db->lastInsertId();
 
             if (!$maTK) {
                 throw new Exception("Không thể tạo bản ghi tài khoản.");
@@ -150,20 +131,24 @@ class TaiKhoanModel
 
     public function findByActivationToken(string $token): ?array
     {
-        $sql = "SELECT tk.MaTK, tk.TenTK, tk.Email, tk.TrangThai, tk.HanKichHoat, nv.TenNV
-                FROM TAI_KHOAN tk
-                JOIN NHAN_VIEN nv ON tk.MaNV = nv.MaNV
-                WHERE tk.TokenKichHoat = ?";
-        $stmt = $this->getDb()->prepare($sql);
-        $stmt->execute([$token]);
-        $row = $stmt->fetch();
-        return $row ?: null;
+        try {
+            $sql = "SELECT tk.MaTK, tk.TenTK, tk.Email, tk.TrangThai, tk.HanKichHoat, nv.TenNV
+                    FROM TAI_KHOAN tk
+                    JOIN NHAN_VIEN nv ON tk.MaNV = nv.MaNV
+                    WHERE tk.TokenKichHoat = ?";
+            $stmt = $this->getDb()->prepare($sql);
+            $stmt->execute([$token]);
+            $row = $stmt->fetch();
+            return $row ?: null;
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     public function activateAccount(int $maTK): bool
     {
         $sql = "UPDATE TAI_KHOAN 
-                SET TrangThai = N'Đã kích hoạt' 
+                SET TrangThai = 'Đã kích hoạt' 
                 WHERE MaTK = ?";
         $stmt = $this->getDb()->prepare($sql);
         return $stmt->execute([$maTK]);
@@ -221,18 +206,10 @@ class TaiKhoanModel
             return (int)$row['MaVaiTro'];
         }
 
-        try {
-            $insertSql = "INSERT INTO VAI_TRO (TenVaiTro, HanMucGiam) OUTPUT INSERTED.MaVaiTro VALUES (?, ?)";
-            $insertStmt = $db->prepare($insertSql);
-            $insertStmt->execute([$tenVaiTro, $hanMucGiam]);
-            $inserted = $insertStmt->fetch();
-            return isset($inserted['MaVaiTro']) ? (int)$inserted['MaVaiTro'] : null;
-        } catch (Exception) {
-            $insertSql = "INSERT INTO VAI_TRO (TenVaiTro, HanMucGiam) VALUES (?, ?)";
-            $insertStmt = $db->prepare($insertSql);
-            $insertStmt->execute([$tenVaiTro, $hanMucGiam]);
-            $id = $db->lastInsertId();
-            return $id ? (int)$id : null;
-        }
+        $insertSql = "INSERT INTO VAI_TRO (TenVaiTro, HanMucGiam) VALUES (?, ?)";
+        $insertStmt = $db->prepare($insertSql);
+        $insertStmt->execute([$tenVaiTro, $hanMucGiam]);
+        $id = $db->lastInsertId();
+        return $id ? (int)$id : null;
     }
 }

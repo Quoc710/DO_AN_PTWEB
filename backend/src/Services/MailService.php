@@ -151,4 +151,130 @@ class MailService
 </html>
 HTML;
     }
+
+    /**
+     * Gửi email thông báo Thợ May (Affiliate) đã được Admin duyệt
+     */
+    public function sendAffiliateApprovedEmail(string $toEmail, string $fullName): array
+    {
+        $appUrl = rtrim(Env::get('APP_URL', 'http://localhost:8000'), '/');
+        $loginLink = "{$appUrl}/frontend/src/modules/Tai_khoan/pages/auth.html";
+        $subject = "🎉 Chúc mừng! Đơn đăng ký Đối tác Thợ May của bạn đã được duyệt - AURA MINIMAL";
+
+        $safeName = htmlspecialchars($fullName, ENT_QUOTES, 'UTF-8');
+        $htmlBody = <<<HTML
+<!DOCTYPE html>
+<html lang="vi">
+<head><meta charset="UTF-8"><title>{$subject}</title></head>
+<body style="margin: 0; padding: 30px; background-color: #f6f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1a1a28;">
+  <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 540px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e1f4;">
+    <tr>
+      <td style="padding: 32px 32px 20px; border-bottom: 1px solid #f0edf8;">
+        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #4f46e5; margin-right: 8px; vertical-align: middle;"></span>
+        <strong style="font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; color: #000000; vertical-align: middle;">AURA MINIMAL</strong>
+        <span style="float: right; font-size: 11px; color: #4f46e5; font-weight: bold;">AFFILIATE PARTNER</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 32px;">
+        <h1 style="font-size: 20px; font-weight: bold; margin: 0 0 12px; color: #1a1a28;">🎉 Hồ sơ đối tác đã được duyệt thành công!</h1>
+        <p style="font-size: 14px; line-height: 1.6; color: #47464b; margin: 0 0 20px;">
+          Xin chào <strong>{$safeName}</strong>,<br>
+          Ban quản trị <strong>AURA MINIMAL</strong> đã xem xét và chính thức phê duyệt đơn đăng ký của bạn. Tài khoản của bạn hiện đã được kích hoạt quyền <strong>Thợ May (Affiliate)</strong>.
+        </p>
+        <div style="background-color: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 16px; margin: 20px 0; font-size: 13px; color: #4338ca;">
+          ✨ <strong>Quyền lợi của bạn:</strong> Bắt đầu từ bây giờ, bạn có thể truy cập <strong>Cổng Thợ May</strong> để tạo link giới thiệu vải, nhận hoa hồng 5% trên mỗi đơn hàng và tạo Lookbook riêng!
+        </div>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="{$loginLink}" style="display: inline-block; padding: 14px 28px; background-color: #000000; color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 600;">Đăng nhập vào hệ thống ngay &rarr;</a>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 20px 32px; background-color: #fbf8ff; border-top: 1px solid #f0edf8; text-align: center; font-size: 11px; color: #9c9aa2;">
+        Hệ Thống Đối Tác Thợ May &amp; Vải May AURA MINIMAL
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+HTML;
+
+        return $this->sendRawMail($toEmail, $fullName, $subject, $htmlBody);
+    }
+
+    /**
+     * Gửi email thông báo Thợ May bị từ chối đơn
+     */
+    public function sendAffiliateRejectedEmail(string $toEmail, string $fullName, string $reason): array
+    {
+        $subject = "Thông báo kết quả xét duyệt hồ sơ Thợ May - AURA MINIMAL";
+        $safeName = htmlspecialchars($fullName, ENT_QUOTES, 'UTF-8');
+        $safeReason = htmlspecialchars($reason ?: 'Hồ sơ chưa đáp ứng đủ tiêu chí đối tác', ENT_QUOTES, 'UTF-8');
+
+        $htmlBody = <<<HTML
+<!DOCTYPE html>
+<html lang="vi">
+<head><meta charset="UTF-8"><title>{$subject}</title></head>
+<body style="margin: 0; padding: 30px; background-color: #f6f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1a1a28;">
+  <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 540px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e1f4;">
+    <tr>
+      <td style="padding: 32px 32px 20px; border-bottom: 1px solid #f0edf8;">
+        <strong style="font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; color: #000000;">AURA MINIMAL</strong>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 32px;">
+        <h1 style="font-size: 18px; font-weight: bold; margin: 0 0 12px; color: #1a1a28;">Thông báo xét duyệt hồ sơ đối tác</h1>
+        <p style="font-size: 14px; line-height: 1.6; color: #47464b; margin: 0 0 20px;">
+          Xin chào <strong>{$safeName}</strong>,<br>
+          Cảm ơn bạn đã quan tâm đến chương trình đối tác Thợ May của AURA MINIMAL. Sau khi xem xét, chúng tôi rất tiếc chưa thể phê duyệt hồ sơ của bạn vào thời điểm hiện tại.
+        </p>
+        <div style="background-color: #fff1f2; border: 1px solid #fecdd3; border-radius: 8px; padding: 14px; margin: 20px 0; font-size: 13px; color: #be123c;">
+          <strong>Lý do:</strong> {$safeReason}
+        </div>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+HTML;
+
+        return $this->sendRawMail($toEmail, $fullName, $subject, $htmlBody);
+    }
+
+    private function sendRawMail(string $toEmail, string $toName, string $subject, string $htmlBody): array
+    {
+        $smtpHost = Env::get('MAIL_HOST', 'smtp.gmail.com');
+        $smtpPort = (int)Env::get('MAIL_PORT', '587');
+        $smtpUser = Env::get('MAIL_USER', '');
+        $smtpPass = Env::get('MAIL_PASS', '');
+        $fromEmail = trim((string)Env::get('MAIL_FROM', ''));
+        if ($fromEmail === '') $fromEmail = $smtpUser ?: 'noreply@auraminimal.vn';
+        $fromName = Env::get('MAIL_FROM_NAME', 'AURA MINIMAL');
+
+        if (!empty($smtpUser) && !empty($smtpPass)) {
+            try {
+                $mail = new PHPMailer(true);
+                $mail->isSMTP();
+                $mail->CharSet = 'UTF-8';
+                $mail->Host = $smtpHost;
+                $mail->SMTPAuth = true;
+                $mail->Username = $smtpUser;
+                $mail->Password = $smtpPass;
+                $mail->SMTPSecure = $smtpPort === 465 ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port = $smtpPort;
+                $mail->Timeout = 10;
+                $mail->SMTPOptions = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true]];
+                $mail->setFrom($fromEmail, $fromName);
+                $mail->addAddress($toEmail, $toName);
+                $mail->isHTML(true);
+                $mail->Subject = $subject;
+                $mail->Body = $htmlBody;
+                $mail->send();
+                return ['sent_real' => true, 'message' => 'Đã gửi email thành công.'];
+            } catch (Throwable $e) {}
+        }
+        return ['sent_real' => false, 'message' => 'Lưu log giả lập.'];
+    }
 }
