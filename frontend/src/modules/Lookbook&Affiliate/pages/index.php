@@ -36,8 +36,8 @@ $hasSession = $sessionUser !== null;
             -webkit-appearance: none; 
             margin: 0; 
         }
-        input[type=number] {
-            -moz-appearance: textfield;
+        input[type=number] { 
+            -moz-appearance: textfield; 
         }
     </style>
 </head>
@@ -445,9 +445,24 @@ $hasSession = $sessionUser !== null;
         <?php endif; ?>
 
         <!-- =================================================================================== -->
-        <!-- TAB 3: LOOKBOOK KHÁCH HÀNG (GALLERY & MUA VẢI NGAY TỪ ẢNH) -->
+        <!-- TAB 3: LOOKBOOK KHÁCH HÀNG (GALLERY & TÍNH MÉT VẢI & LỌC THEO MÀU SẮC & MUA VẢI) -->
         <!-- =================================================================================== -->
         <?php if ($tab === 'lookbook'): ?>
+        <?php
+            $optMauSac = $filterOptions['mau_sac'] ?? [];
+            if (empty($optMauSac)) {
+                foreach (($lookbooks ?? []) as $r) {
+                    $m = trim((string)($r['MauSac'] ?? ''));
+                    if ($m !== '') {
+                        $optMauSac[$m] = $m;
+                    }
+                }
+                $optMauSac = array_values($optMauSac);
+            }
+            $selKeyword = trim((string)($_GET['keyword'] ?? ''));
+            $selMauSac  = trim((string)($_GET['mau_sac'] ?? ''));
+            $selLoaiSp  = trim((string)($_GET['loai_sp'] ?? ''));
+        ?>
         <div>
             <?php if ($referralTailor): ?>
             <!-- AFFILIATE REFERRAL BANNER -->
@@ -478,7 +493,7 @@ $hasSession = $sessionUser !== null;
             <?php endif; ?>
 
             <!-- Banner Header -->
-            <div class="text-center max-w-3xl mx-auto mb-10">
+            <div class="text-center max-w-3xl mx-auto mb-8">
                 <span class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">LOOKBOOK THIẾT KẾ • CẢM HỨNG MAY ĐO</span>
                 <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-3 tracking-tight">Thư viện Mẫu May & Vải Thực Tế</h1>
                 <p class="text-sm text-slate-500 mt-2">
@@ -491,6 +506,107 @@ $hasSession = $sessionUser !== null;
                 </div>
             </div>
 
+            <!-- 1. CÔNG THỨC TÍNH ĐỊNH MỨC LƯỢNG VẢI CẦN MUA -->
+            <div class="max-w-5xl mx-auto bg-white border border-slate-200 rounded-2xl p-5 shadow-sm mb-6">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <h2 class="font-bold text-slate-900 text-xs sm:text-sm flex items-center">
+                        <i class="fa-solid fa-calculator mr-2 text-indigo-600"></i> Công thức tính định mức lượng vải cần mua
+                    </h2>
+                    <span class="text-[11px] text-slate-500">Công thức: <strong>Mét vải = Định mức mẫu × Hệ số khổ vải × Số lượng × (1 + % hao hụt)</strong></span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 text-xs">
+                    <div>
+                        <label class="font-bold text-slate-600 block mb-1">Loại trang phục</label>
+                        <select id="calcGarmentSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-semibold">
+                            <option value="2.5">Áo dài (2.5m)</option>
+                            <option value="2.2">Đầm &amp; Váy (2.2m)</option>
+                            <option value="3.0">Vest / Suit (3.0m)</option>
+                            <option value="1.6">Áo sơ mi (1.6m)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-600 block mb-1">Khổ vải</label>
+                        <select id="calcWidthFactor" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-semibold">
+                            <option value="1.0">Khổ lớn 1.5m (×1.0)</option>
+                            <option value="1.3">Khổ nhỏ 1.15m (×1.3)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-600 block mb-1">Số lượng bộ</label>
+                        <input id="calcGarmentQty" type="number" value="1" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-600 block mb-1">Dự phòng hao hụt (%)</label>
+                        <input id="calcGarmentBuffer" type="number" value="10" min="0" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 font-bold">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="button" onclick="calculateLookbookFormula()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 px-4 rounded-xl transition cursor-pointer">
+                            Tính mét vải
+                        </button>
+                    </div>
+                </div>
+                <div id="calcFormulaResult" class="hidden mt-3 p-3 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-950 text-xs font-semibold text-center"></div>
+            </div>
+
+            <!-- 2. BỘ LỌC THEO MÀU SẮC TỪ DATABASE -->
+            <!-- 2. BỘ LỌC SẢN PHẨM (TÌM KIẾM + PHÂN LOẠI + MÀU SẮC) -->
+            <form method="GET" action="index.php" class="max-w-5xl mx-auto bg-white border border-slate-200 rounded-2xl p-5 shadow-sm mb-8">
+                <input type="hidden" name="module" value="lookbook">
+                <input type="hidden" name="tab" value="lookbook">
+                <input type="hidden" name="category" value="<?= htmlspecialchars($category ?? 'Tất cả mẫu') ?>">
+                <?php if (!empty($refCode)): ?>
+                    <input type="hidden" name="ref" value="<?= htmlspecialchars($refCode) ?>">
+                <?php endif; ?>
+
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <h2 class="font-bold text-slate-900 text-xs sm:text-sm flex items-center">
+                        <i class="fa-solid fa-filter mr-2 text-indigo-600"></i> Lọc sản phẩm (Database)
+                    </h2>
+                    <span class="text-xs text-slate-500">
+                        Đang hiển thị: <strong class="text-indigo-600 text-sm"><?= count($lookbooks ?? []) ?></strong> mẫu
+                    </span>
+                </div>
+
+                <!-- Đổi grid thành 4 cột để chứa thêm mục Phân loại -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs">
+                    <div>
+                        <label class="font-bold text-slate-600 block mb-1">Tìm tên mẫu / Mã vải</label>
+                        <input type="text" name="keyword" value="<?= htmlspecialchars($selKeyword) ?>" placeholder="VD: Linen, #LN-55..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 focus:outline-indigo-600">
+                    </div>
+                    
+                    <!-- MỤC GIAO DIỆN MỚI: PHÂN LOẠI -->
+                    <div>
+                        <label class="font-bold text-slate-600 block mb-1">Phân loại</label>
+                        <select name="loai_sp" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-semibold focus:outline-indigo-600">
+                            <option value="">-- Tất cả --</option>
+                            <option value="vai" <?= $selLoaiSp === 'vai' ? 'selected' : '' ?>>Vải (Kho nguyên cuộn)</option>
+                            <option value="lookbook" <?= $selLoaiSp === 'lookbook' ? 'selected' : '' ?>>Đồ may sẵn (Lookbook)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="font-bold text-slate-600 block mb-1">Màu sắc (CSDL)</label>
+                        <select name="mau_sac" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-800 font-semibold focus:outline-indigo-600">
+                            <option value="">-- Tất cả Màu sắc --</option>
+                            <?php foreach ($optMauSac as $ms): ?>
+                                <option value="<?= htmlspecialchars((string)$ms) ?>" <?= $selMauSac === (string)$ms ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars((string)$ms) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-end gap-2">
+                        <button type="submit" class="flex-1 py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl cursor-pointer transition">
+                            <i class="fa-solid fa-magnifying-glass mr-1"></i> Lọc
+                        </button>
+                        <a href="index.php?module=lookbook&amp;tab=lookbook&amp;category=<?= urlencode($category ?? 'Tất cả mẫu') ?><?= !empty($refCode) ? '&amp;ref=' . urlencode($refCode) : '' ?>" class="py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl transition text-center">
+                            Đặt lại
+                        </a>
+                    </div>
+                </div>
+            </form>
+
             <!-- Categories Filter -->
             <div class="flex items-center justify-center flex-wrap gap-2 mb-8">
                 <?php
@@ -498,7 +614,7 @@ $hasSession = $sessionUser !== null;
                 foreach ($cats as $cat):
                     $active = ($category === $cat);
                 ?>
-                <a href="index.php?module=lookbook&amp;tab=lookbook&amp;category=<?= urlencode($cat) ?>" class="px-4 py-2 rounded-xl text-xs font-bold transition-all <?= $active ? 'bg-slate-900 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200' ?>">
+                <a href="index.php?module=lookbook&amp;tab=lookbook&amp;category=<?= urlencode($cat) ?><?= $selMauSac !== '' ? '&amp;mau_sac=' . urlencode($selMauSac) : '' ?>" class="px-4 py-2 rounded-xl text-xs font-bold transition-all <?= $active ? 'bg-slate-900 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200' ?>">
                     <?= $cat ?>
                 </a>
                 <?php endforeach; ?>
@@ -523,6 +639,11 @@ $hasSession = $sessionUser !== null;
                             <span class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-white/90 backdrop-blur-sm text-slate-800 shadow-sm">
                                 <?= htmlspecialchars($lb['DanhMuc']) ?>
                             </span>
+                            <?php if (!empty($lb['MauSac'])): ?>
+                            <span class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-indigo-600/90 text-white shadow-sm">
+                                Màu: <?= htmlspecialchars($lb['MauSac']) ?>
+                            </span>
+                            <?php endif; ?>
                         </div>
 
                         <div class="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-white/95 backdrop-blur-sm border border-slate-200/60 shadow-lg">
@@ -549,7 +670,7 @@ $hasSession = $sessionUser !== null;
                             </h3>
                             <p class="text-xs text-slate-500 mt-2 line-clamp-2"><?= htmlspecialchars($lb['MoTa']) ?></p>
 
-                            <!-- TAG SẢN PHẨM MÃ VẢI (YÊU CẦU TRỌNG TÂM CỦA ĐỒ ÁN) -->
+                            <!-- TAG SẢN PHẨM MÃ VẢI -->
                             <div class="mt-4 p-3.5 rounded-xl bg-slate-50 border border-slate-100 text-xs space-y-1.5">
                                 <div class="flex items-center justify-between">
                                     <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">VẢI ĐƯỢC DÙNG</span>
@@ -567,17 +688,14 @@ $hasSession = $sessionUser !== null;
 
                         <!-- Action Buttons (3 nút: Mua ngay, + Giỏ, Chi tiết) -->
                         <div class="mt-5 pt-4 border-t border-slate-100 flex items-center gap-2">
-                            <!-- Nút 1: Mua ngay -->
                             <button onclick="openAffiliateBuyModal('<?= addslashes($lb['TenLookBook']) ?>', '<?= addslashes($lb['URLHinhAnh']) ?>', '<?= addslashes($lb['MaVaiCode']) ?>', '<?= addslashes($lb['TenSP']) ?>', <?= $lb['DonGia'] ?: 185000 ?>, '<?= addslashes($lb['DinhLuongVai']) ?>', '<?= addslashes($refCode ?: ($tailor['AffiliateCode'] ?? '')) ?>', '<?= addslashes($referralTailor['TenTiemMay'] ?? ($tailor['TenTiemMay'] ?? 'Nhà May Hoàng Kim')) ?>')" class="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center">
                                 <i class="fa-solid fa-bolt mr-1.5 text-amber-400"></i> Mua ngay
                             </button>
 
-                            <!-- Nút 2: Thêm vào giỏ -->
                             <button onclick="addToCartItem('<?= addslashes($lb['MaVaiCode']) ?>', '<?= addslashes($lb['TenSP']) ?>', '<?= addslashes($lb['DinhLuongVai']) ?>', <?= $lb['DonGia'] ?: 185000 ?>, '<?= addslashes($lb['URLHinhAnh']) ?>', '<?= addslashes($refCode ?: ($tailor['AffiliateCode'] ?? '')) ?>')" class="px-3 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold transition-all flex items-center justify-center whitespace-nowrap" title="Thêm mét vải vào giỏ hàng">
                                 <i class="fa-solid fa-cart-plus mr-1"></i> + Giỏ
                             </button>
 
-                            <!-- Nút 3: Chi tiết -->
                             <button onclick="openDetailModal('<?= addslashes($lb['TenLookBook']) ?>', '<?= addslashes($lb['URLHinhAnh']) ?>', '<?= addslashes($lb['TenTiemMay'] ?: $lb['TenNV']) ?>', '<?= addslashes($lb['SDT'] ?: '') ?>', '<?= addslashes($lb['MaVaiCode']) ?>', '<?= addslashes($lb['TenSP']) ?>', '<?= addslashes($lb['DinhLuongVai']) ?>', '<?= addslashes($lb['MoTa']) ?>', <?= $lb['DonGia'] ?: 185000 ?>)" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all whitespace-nowrap">
                                 Chi tiết
                             </button>
@@ -656,12 +774,8 @@ $hasSession = $sessionUser !== null;
                 </button>
             </div>
 
-            <!-- Danh sách cuộn vải trong giỏ -->
-            <div class="p-6 overflow-y-auto space-y-3 flex-1" id="cartItemsList">
-                <!-- Rendered by JS -->
-            </div>
+            <div class="p-6 overflow-y-auto space-y-3 flex-1" id="cartItemsList"></div>
 
-            <!-- Tổng kết & Chuyển sang Module 2 -->
             <div class="p-5 border-t border-slate-100 bg-slate-50 space-y-3">
                 <div class="flex items-center justify-between text-xs">
                     <span class="text-slate-500 font-semibold">Tổng tiền vải:</span>
@@ -774,7 +888,7 @@ $hasSession = $sessionUser !== null;
                 <div class="flex items-center justify-between p-3.5 rounded-xl bg-indigo-50/70 border border-indigo-100 text-xs">
                     <div>
                         <span class="text-slate-600">Mã giới thiệu của tiệm:</span>
-                        <strong class="text-indigo-700 ml-1 font-mono"><?= htmlspecialchars($tailor['AffiliateCode'] ?: (['AffiliateCode'] ?? '')) ?></strong>
+                        <strong class="text-indigo-700 ml-1 font-mono"><?= htmlspecialchars($tailor['AffiliateCode'] ?: '') ?></strong>
                     </div>
                     <div>
                         <span class="text-slate-600">Tỷ lệ hoa hồng:</span>
@@ -866,382 +980,19 @@ $hasSession = $sessionUser !== null;
         </div>
     </div>
 
-    <!-- POPUP MODAL ĐƠN HÀNG MỚI CHỜ DUYỆT MAY ĐO (HƯỚNG 1 CHO MODULE 2 & 4) -->
-    <div id="orderModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white max-w-3xl w-full rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
-                <div>
-                    <span class="text-[11px] font-bold text-indigo-600 uppercase tracking-wider">HỆ THỐNG ĐƠN HÀNG (MODULE 2 & 4)</span>
-                    <h3 class="text-lg font-bold text-slate-900 flex items-center mt-0.5">
-                        <i class="fa-solid fa-bag-shopping mr-2 text-indigo-600"></i> Danh Sách Đơn Hàng Mới & May Đo Cần Duyệt (28 đơn)
-                    </h3>
-                </div>
-                <button onclick="closeOrderModal()" class="text-slate-400 hover:text-slate-600 text-lg w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            
-            <div class="p-6 overflow-y-auto space-y-4">
-                <!-- Thanh tìm kiếm & Bộ lọc trạng thái trực tiếp -->
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                    <div class="relative w-full sm:w-80">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input type="text" id="orderSearchInput" onkeyup="filterOrderTable()" placeholder="Tìm theo tên khách, SĐT, mã đơn #ORD, tiệm may..." class="w-full pl-9 pr-4 py-2 bg-white rounded-lg border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent font-medium shadow-sm">
-                    </div>
-                    <div class="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-                        <button type="button" onclick="filterByStatus('all')" class="order-filter-btn active px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-900 text-white shadow-sm">Tất cả</button>
-                        <button type="button" onclick="filterByStatus('Chờ đo mẫu')" class="order-filter-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white text-slate-600 border border-slate-200 hover:bg-slate-100">Chờ đo mẫu</button>
-                        <button type="button" onclick="filterByStatus('Chờ cắt vải')" class="order-filter-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white text-slate-600 border border-slate-200 hover:bg-slate-100">Chờ cắt vải</button>
-                        <button type="button" onclick="filterByStatus('Đã cắt vải')" class="order-filter-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white text-slate-600 border border-slate-200 hover:bg-slate-100">Đã cắt vải</button>
-                    </div>
-                </div>
-
-                <!-- Table of Orders -->
-                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 font-bold text-slate-600 border-b border-slate-200">
-                            <tr>
-                                <th class="p-3.5 pl-4 whitespace-nowrap">MÃ ĐƠN</th>
-                                <th class="p-3.5 whitespace-nowrap">KHÁCH HÀNG</th>
-                                <th class="p-3.5">MẪU VẢI & TRANG PHỤC</th>
-                                <th class="p-3.5 whitespace-nowrap">TIỆM MAY PHỤ TRÁCH</th>
-                                <th class="p-3.5 whitespace-nowrap">TỔNG TIỀN</th>
-                                <th class="p-3.5 pr-4 text-center whitespace-nowrap">TRẠNG THÁI</th>
-                            </tr>
-                        </thead>
-                        <tbody id="orderTableBody" class="divide-y divide-slate-100 font-medium">
-                            <tr data-status="Chờ đo mẫu" class="hover:bg-slate-50 transition-colors">
-                                <td class="p-3.5 pl-4 font-bold text-indigo-600 whitespace-nowrap">#ORD-9021</td>
-                                <td class="p-3.5 whitespace-nowrap">
-                                    <div class="font-bold text-slate-900">Trần Thu Thảo</div>
-                                    <div class="text-[11px] text-slate-400">0912.334.881</div>
-                                </td>
-                                <td class="p-3.5">
-                                    <div class="font-bold text-slate-800">Đầm Linen Suông Dáng Dài</div>
-                                    <div class="text-[11px] text-slate-500">2.4m vải Linen Tưng (#LN-55)</div>
-                                </td>
-                                <td class="p-3.5 font-semibold text-slate-700 whitespace-nowrap">Nhà May Hoàng Kim</td>
-                                <td class="p-3.5 font-extrabold text-slate-900 whitespace-nowrap">444.000₫</td>
-                                <td class="p-3.5 pr-4 text-center whitespace-nowrap">
-                                    <span class="inline-block whitespace-nowrap px-3 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 shadow-sm">Chờ đo mẫu</span>
-                                </td>
-                            </tr>
-                            <tr data-status="Chờ cắt vải" class="hover:bg-slate-50 transition-colors">
-                                <td class="p-3.5 pl-4 font-bold text-indigo-600 whitespace-nowrap">#ORD-9020</td>
-                                <td class="p-3.5 whitespace-nowrap">
-                                    <div class="font-bold text-slate-900">Nguyễn Phương Linh</div>
-                                    <div class="text-[11px] text-slate-400">0987.221.909</div>
-                                </td>
-                                <td class="p-3.5">
-                                    <div class="font-bold text-slate-800">Áo Dài Lụa Tơ Cổ Cao</div>
-                                    <div class="text-[11px] text-slate-500">3.0m Lụa Tơ Tằm (#LK-02)</div>
-                                </td>
-                                <td class="p-3.5 font-semibold text-slate-700 whitespace-nowrap">Tiệm May Ý Lan</td>
-                                <td class="p-3.5 font-extrabold text-slate-900 whitespace-nowrap">960.000₫</td>
-                                <td class="p-3.5 pr-4 text-center whitespace-nowrap">
-                                    <span class="inline-block whitespace-nowrap px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-sm">Chờ cắt vải</span>
-                                </td>
-                            </tr>
-                            <tr data-status="Chờ đo mẫu" class="hover:bg-slate-50 transition-colors">
-                                <td class="p-3.5 pl-4 font-bold text-indigo-600 whitespace-nowrap">#ORD-9019</td>
-                                <td class="p-3.5 whitespace-nowrap">
-                                    <div class="font-bold text-slate-900">Lê Hoàng Nam</div>
-                                    <div class="text-[11px] text-slate-400">0903.111.456</div>
-                                </td>
-                                <td class="p-3.5">
-                                    <div class="font-bold text-slate-800">Blazer Wool Tweed Nam</div>
-                                    <div class="text-[11px] text-slate-500">1.8m Dạ Tweed (#WL-19)</div>
-                                </td>
-                                <td class="p-3.5 font-semibold text-slate-700 whitespace-nowrap">Atelier Trần Hùng</td>
-                                <td class="p-3.5 font-extrabold text-slate-900 whitespace-nowrap">810.000₫</td>
-                                <td class="p-3.5 pr-4 text-center whitespace-nowrap">
-                                    <span class="inline-block whitespace-nowrap px-3 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 shadow-sm">Chờ đo mẫu</span>
-                                </td>
-                            </tr>
-                            <tr data-status="Đã cắt vải" class="hover:bg-slate-50 transition-colors">
-                                <td class="p-3.5 pl-4 font-bold text-indigo-600 whitespace-nowrap">#ORD-9018</td>
-                                <td class="p-3.5 whitespace-nowrap">
-                                    <div class="font-bold text-slate-900">Vũ Minh Trang</div>
-                                    <div class="text-[11px] text-slate-400">0934.555.789</div>
-                                </td>
-                                <td class="p-3.5">
-                                    <div class="font-bold text-slate-800">Sơ Mi Cotton Poplin</div>
-                                    <div class="text-[11px] text-slate-500">1.6m Cotton Poplin (#COT-44)</div>
-                                </td>
-                                <td class="p-3.5 font-semibold text-slate-700 whitespace-nowrap">Nhà May Hoàng Kim</td>
-                                <td class="p-3.5 font-extrabold text-slate-900 whitespace-nowrap">232.000₫</td>
-                                <td class="p-3.5 pr-4 text-center whitespace-nowrap">
-                                    <span class="inline-block whitespace-nowrap px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm">Đã cắt vải</span>
-                                </td>
-                            </tr>
-                            <tr data-status="Chờ đo mẫu" class="hover:bg-slate-50 transition-colors">
-                                <td class="p-3.5 pl-4 font-bold text-indigo-600 whitespace-nowrap">#ORD-9017</td>
-                                <td class="p-3.5 whitespace-nowrap">
-                                    <div class="font-bold text-slate-900">Phạm Bích Ngọc</div>
-                                    <div class="text-[11px] text-slate-400">0971.882.334</div>
-                                </td>
-                                <td class="p-3.5">
-                                    <div class="font-bold text-slate-800">Set Đồ Bộ Lụa Satin Mềm Mại</div>
-                                    <div class="text-[11px] text-slate-500">2.8m Lụa Satin (#SAT-12)</div>
-                                </td>
-                                <td class="p-3.5 font-semibold text-slate-700 whitespace-nowrap">Tiệm May Ý Lan</td>
-                                <td class="p-3.5 font-extrabold text-slate-900 whitespace-nowrap">588.000₫</td>
-                                <td class="p-3.5 pr-4 text-center whitespace-nowrap">
-                                    <span class="inline-block whitespace-nowrap px-3 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 shadow-sm">Chờ đo mẫu</span>
-                                </td>
-                            </tr>
-                            <tr data-status="Đã cắt vải" class="hover:bg-slate-50 transition-colors">
-                                <td class="p-3.5 pl-4 font-bold text-indigo-600 whitespace-nowrap">#ORD-9016</td>
-                                <td class="p-3.5 whitespace-nowrap">
-                                    <div class="font-bold text-slate-900">Đỗ Tuấn Kiệt</div>
-                                    <div class="text-[11px] text-slate-400">0945.667.123</div>
-                                </td>
-                                <td class="p-3.5">
-                                    <div class="font-bold text-slate-800">Quần Tây Pleated Dáng Rộng</div>
-                                    <div class="text-[11px] text-slate-500">1.4m Vải Tencel (#TC-05)</div>
-                                </td>
-                                <td class="p-3.5 font-semibold text-slate-700 whitespace-nowrap">Xưởng May Thanh Tân</td>
-                                <td class="p-3.5 font-extrabold text-slate-900 whitespace-nowrap">273.000₫</td>
-                                <td class="p-3.5 pr-4 text-center whitespace-nowrap">
-                                    <span class="inline-block whitespace-nowrap px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm">Đã cắt vải</span>
-                                </td>
-                            </tr>
-                            <tr data-status="Chờ cắt vải" class="hover:bg-slate-50 transition-colors">
-                                <td class="p-3.5 pl-4 font-bold text-indigo-600 whitespace-nowrap">#ORD-9015</td>
-                                <td class="p-3.5 whitespace-nowrap">
-                                    <div class="font-bold text-slate-900">Hoàng Mai Anh</div>
-                                    <div class="text-[11px] text-slate-400">0918.990.234</div>
-                                </td>
-                                <td class="p-3.5">
-                                    <div class="font-bold text-slate-800">Váy Yếm Linen Cổ Vát</div>
-                                    <div class="text-[11px] text-slate-500">2.2m Linen Tưng (#LN-55)</div>
-                                </td>
-                                <td class="p-3.5 font-semibold text-slate-700 whitespace-nowrap">Nhà May Hoàng Kim</td>
-                                <td class="p-3.5 font-extrabold text-slate-900 whitespace-nowrap">407.000₫</td>
-                                <td class="p-3.5 pr-4 text-center whitespace-nowrap">
-                                    <span class="inline-block whitespace-nowrap px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-sm">Chờ cắt vải</span>
-                                </td>
-                            </tr>
-                            <tr data-status="Chờ đo mẫu" class="hover:bg-slate-50 transition-colors">
-                                <td class="p-3.5 pl-4 font-bold text-indigo-600 whitespace-nowrap">#ORD-9014</td>
-                                <td class="p-3.5 whitespace-nowrap">
-                                    <div class="font-bold text-slate-900">Trịnh Gia Huy</div>
-                                    <div class="text-[11px] text-slate-400">0966.443.211</div>
-                                </td>
-                                <td class="p-3.5">
-                                    <div class="font-bold text-slate-800">Áo Dài Cách Tân Nam Dệt Nổi</div>
-                                    <div class="text-[11px] text-slate-500">3.2m Lụa Tơ Tằm (#LK-02)</div>
-                                </td>
-                                <td class="p-3.5 font-semibold text-slate-700 whitespace-nowrap">Tiệm May Ý Lan</td>
-                                <td class="p-3.5 font-extrabold text-slate-900 whitespace-nowrap">1.024.000₫</td>
-                                <td class="p-3.5 pr-4 text-center whitespace-nowrap">
-                                    <span class="inline-block whitespace-nowrap px-3 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 shadow-sm">Chờ đo mẫu</span>
-                                </td>
-                            </tr>
-                            <tr id="noOrdersRow" class="hidden">
-                                <td colspan="6" class="p-8 text-center text-slate-400">
-                                    <i class="fa-solid fa-magnifying-glass text-2xl mb-1 text-slate-300"></i>
-                                    <p class="text-xs font-semibold">Không tìm thấy đơn hàng nào khớp với tìm kiếm!</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50">
-                <div id="orderCountText" class="text-xs font-semibold text-slate-600">Hiển thị 8 đơn hàng may đo cần duyệt</div>
-                <div class="flex gap-2">
-                    <button onclick="alert('Đã sẵn sàng để liên kết với Module 2 (Giỏ hàng & Thanh toán) khi nhóm ghép code!');" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm">
-                        Xem toàn bộ 142 đơn &rarr;
-                    </button>
-                    <button onclick="closeOrderModal()" class="px-3.5 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 rounded-xl text-xs font-semibold transition-all">
-                        Đóng
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- POPUP MODAL CẬP NHẬT KHO VẢI (MODULE SẢN PHẨM & KHO HÀNG) -->
-    <div id="warehouseModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white max-w-2xl w-full rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
-                <div>
-                    <span class="text-[11px] font-bold text-indigo-600 uppercase tracking-wider">HỆ THỐNG KHO VẢI (AURA HUB)</span>
-                    <h3 class="text-lg font-bold text-slate-900 flex items-center mt-0.5">
-                        <i class="fa-solid fa-boxes-stacked mr-2 text-indigo-600"></i> Kiểm Kê Tồn Kho & Cuộn Vải Thực Tế
-                    </h3>
-                </div>
-                <button onclick="closeWarehouseModal()" class="text-slate-400 hover:text-slate-600 text-lg w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            
-            <div class="p-6 overflow-y-auto space-y-4">
-                <div class="grid grid-cols-3 gap-3">
-                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
-                        <div class="text-[11px] font-bold text-slate-400 uppercase">TỔNG CUỘN VẢI</div>
-                        <div class="text-xl font-extrabold text-slate-900 mt-1">48 cuộn</div>
-                    </div>
-                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
-                        <div class="text-[11px] font-bold text-slate-400 uppercase">TỔNG MÉT TỒN</div>
-                        <div class="text-xl font-extrabold text-indigo-600 mt-1">1.840m</div>
-                    </div>
-                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-center">
-                        <div class="text-[11px] font-bold text-slate-400 uppercase">MỨC AN TOÀN</div>
-                        <div class="text-xl font-extrabold text-emerald-600 mt-1">Chuẩn 100%</div>
-                    </div>
-                </div>
-
-                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 font-bold text-slate-600 border-b border-slate-200">
-                            <tr>
-                                <th class="p-3 pl-4 whitespace-nowrap">MÃ VẢI</th>
-                                <th class="p-3">TÊN VẢI & KHỔ</th>
-                                <th class="p-3 text-right whitespace-nowrap">TỒN KHO</th>
-                                <th class="p-3 pr-4 text-center whitespace-nowrap">TRẠNG THÁI</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 font-medium">
-                            <tr class="hover:bg-slate-50">
-                                <td class="p-3 pl-4 font-bold text-indigo-600 whitespace-nowrap">#LN-55</td>
-                                <td class="p-3">
-                                    <div class="font-bold text-slate-900">Vải Linen Tưng Premium Kem Mộc</div>
-                                    <div class="text-[11px] text-slate-400">Khổ 1.45m • Sợi lanh tự nhiên</div>
-                                </td>
-                                <td class="p-3 text-right font-extrabold text-slate-900 whitespace-nowrap">340m</td>
-                                <td class="p-3 pr-4 text-center whitespace-nowrap">
-                                    <span class="inline-block whitespace-nowrap px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Dồi dào</span>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-slate-50">
-                                <td class="p-3 pl-4 font-bold text-indigo-600 whitespace-nowrap">#LK-02</td>
-                                <td class="p-3">
-                                    <div class="font-bold text-slate-900">Lụa Tơ Tằm Tự Nhiên Bảo Lộc</div>
-                                    <div class="text-[11px] text-slate-400">Khổ 1.40m • Màu Trắng Ngà</div>
-                                </td>
-                                <td class="p-3 text-right font-extrabold text-amber-600 whitespace-nowrap">85m</td>
-                                <td class="p-3 pr-4 text-center whitespace-nowrap">
-                                    <span class="inline-block whitespace-nowrap px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Sắp hết hàng</span>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-slate-50">
-                                <td class="p-3 pl-4 font-bold text-indigo-600 whitespace-nowrap">#WL-19</td>
-                                <td class="p-3">
-                                    <div class="font-bold text-slate-900">Dạ Wool Tweed Dệt Nổi Xám</div>
-                                    <div class="text-[11px] text-slate-400">Khổ 1.50m • Nhập khẩu</div>
-                                </td>
-                                <td class="p-3 text-right font-extrabold text-slate-900 whitespace-nowrap">120m</td>
-                                <td class="p-3 pr-4 text-center whitespace-nowrap">
-                                    <span class="inline-block whitespace-nowrap px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Dồi dào</span>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-slate-50">
-                                <td class="p-3 pl-4 font-bold text-indigo-600 whitespace-nowrap">#COT-44</td>
-                                <td class="p-3">
-                                    <div class="font-bold text-slate-900">Cotton Poplin Nhật Trắng Sứ</div>
-                                    <div class="text-[11px] text-slate-400">Khổ 1.50m • Chống nhăn</div>
-                                </td>
-                                <td class="p-3 text-right font-extrabold text-slate-900 whitespace-nowrap">512m</td>
-                                <td class="p-3 pr-4 text-center whitespace-nowrap">
-                                    <span class="inline-block whitespace-nowrap px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Dồi dào</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50">
-                <div class="text-xs text-slate-500">Cập nhật lần cuối: Hôm nay 11:30</div>
-                <div class="flex gap-2">
-                    <button onclick="alert('Chức năng Nhập cuộn vải mới sẽ mở khi ghép Module Quản lý Kho!');" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm">
-                        <i class="fa-solid fa-plus mr-1"></i> Nhập cuộn vải mới
-                    </button>
-                    <button onclick="closeWarehouseModal()" class="px-3.5 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 rounded-xl text-xs font-semibold transition-all">
-                        Đóng
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- JAVASCRIPT XỬ LÝ CLICK TƯƠNG TÁC -->
     <script>
-        function scrollToSection(id) {
-            const el = document.getElementById(id);
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                // Hiệu ứng highlight chớp sáng nhẹ viền xanh
-                el.classList.add('ring-4', 'ring-indigo-500/40', 'bg-indigo-50/20');
-                setTimeout(() => {
-                    el.classList.remove('ring-4', 'ring-indigo-500/40', 'bg-indigo-50/20');
-                }, 1500);
-            }
-        }
+        // Công thức tính định mức lượng vải cần mua
+        function calculateLookbookFormula() {
+            const rate   = parseFloat(document.getElementById('calcGarmentSelect').value) || 2.0;
+            const factor = parseFloat(document.getElementById('calcWidthFactor').value) || 1.0;
+            const qty    = Math.max(1, parseInt(document.getElementById('calcGarmentQty').value, 10) || 1);
+            const buf    = Math.max(0, parseFloat(document.getElementById('calcGarmentBuffer').value) || 0);
+            const total  = (rate * factor * qty * (1 + buf / 100)).toFixed(2);
 
-        function openOrderModal() {
-            document.getElementById('orderModal').classList.remove('hidden');
-        }
-
-        function closeOrderModal() {
-            document.getElementById('orderModal').classList.add('hidden');
-        }
-
-        // TÌM KIẾM VÀ LỌC TRẠNG THÁI ĐƠN HÀNG TỨC THÌ (REAL-TIME FILTER)
-        let currentStatusFilter = 'all';
-
-        function filterByStatus(status) {
-            currentStatusFilter = status;
-            document.querySelectorAll('.order-filter-btn').forEach(btn => {
-                if ((status === 'all' && btn.innerText.trim() === 'Tất cả') || btn.innerText.trim() === status) {
-                    btn.className = 'order-filter-btn active px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-900 text-white shadow-sm';
-                } else {
-                    btn.className = 'order-filter-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white text-slate-600 border border-slate-200 hover:bg-slate-100';
-                }
-            });
-            filterOrderTable();
-        }
-
-        function filterOrderTable() {
-            const query = (document.getElementById('orderSearchInput').value || '').toLowerCase().trim();
-            const rows = document.querySelectorAll('#orderTableBody tr:not(#noOrdersRow)');
-            let visibleCount = 0;
-
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                const status = row.getAttribute('data-status') || '';
-                
-                const matchesQuery = query === '' || text.includes(query);
-                const matchesStatus = currentStatusFilter === 'all' || status === currentStatusFilter;
-
-                if (matchesQuery && matchesStatus) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            const noRow = document.getElementById('noOrdersRow');
-            if (noRow) {
-                noRow.classList.toggle('hidden', visibleCount > 0);
-            }
-            
-            const countEl = document.getElementById('orderCountText');
-            if (countEl) {
-                countEl.innerText = `Hiển thị ${visibleCount} đơn hàng phù hợp`;
-            }
-        }
-
-        function openWarehouseModal() {
-            document.getElementById('warehouseModal').classList.remove('hidden');
-        }
-
-        function closeWarehouseModal() {
-            document.getElementById('warehouseModal').classList.add('hidden');
+            const box = document.getElementById('calcFormulaResult');
+            box.innerHTML = `Công thức: ${rate}m × ${factor} (khổ vải) × ${qty} bộ + ${buf}% dự phòng = <strong class="text-indigo-700 text-sm">${total} mét vải cần mua</strong>`;
+            box.classList.remove('hidden');
         }
 
         function openDetailModal(title, img, tailor, phone, code, fabric, metric, desc, donGia) {
@@ -1253,7 +1004,6 @@ $hasSession = $sessionUser !== null;
             document.getElementById('modalMetric').innerText = 'Khuyến nghị tiêu hao: ' + metric;
             document.getElementById('modalDesc').innerText = desc || 'Chưa có mô tả chi tiết.';
             
-            // Gắn sự kiện Mua ngay cho nút trong modal
             const buyBtn = document.getElementById('modalBuyBtn');
             if (buyBtn) {
                 buyBtn.onclick = function() {
@@ -1262,7 +1012,6 @@ $hasSession = $sessionUser !== null;
                 };
             }
 
-            // Gắn sự kiện Thêm vào giỏ cho nút trong modal
             const addCartBtn = document.getElementById('modalAddCartBtn');
             if (addCartBtn) {
                 addCartBtn.onclick = function() {
@@ -1278,11 +1027,8 @@ $hasSession = $sessionUser !== null;
         // QUẢN LÝ GIỎ HÀNG LOOKBOOK (KẾT NỐI MODULE 2)
         // ==========================================
         function getCart() {
-            try {
-                return JSON.parse(localStorage.getItem('aura_lookbook_cart') || '[]');
-            } catch (e) {
-                return [];
-            }
+            try { return JSON.parse(localStorage.getItem('aura_lookbook_cart') || '[]'); }
+            catch (e) { return []; }
         }
 
         function saveCart(cart) {
@@ -1299,9 +1045,7 @@ $hasSession = $sessionUser !== null;
                 badge.style.display = count > 0 ? 'inline-block' : 'none';
             }
             const headerCount = document.getElementById('cartModalHeaderCount');
-            if (headerCount) {
-                headerCount.innerText = count;
-            }
+            if (headerCount) headerCount.innerText = count;
         }
 
         function addToCartItem(maVai, tenSP, dinhLuong, donGia, img, refCode) {
@@ -1309,23 +1053,11 @@ $hasSession = $sessionUser !== null;
             let soMet = 2.4;
             if (dinhLuong) {
                 const match = dinhLuong.match(/([0-9]+(\.[0-9]+)?)/);
-                if (match) {
-                    soMet = parseFloat(match[0]);
-                }
+                if (match) soMet = parseFloat(match[0]);
             }
             const tongTien = Math.round(soMet * donGia);
 
-            cart.push({
-                maVai: maVai,
-                tenSP: tenSP,
-                soMet: soMet,
-                dinhLuong: dinhLuong,
-                donGia: donGia,
-                tongTien: tongTien,
-                img: img,
-                refCode: refCode || ''
-            });
-
+            cart.push({ maVai, tenSP, soMet, dinhLuong, donGia, tongTien, img, refCode: refCode || '' });
             saveCart(cart);
             showQuickToast(`🛒 Đã thêm ${soMet}m vải ${maVai} (${tenSP}) vào giỏ hàng!`);
         }
@@ -1343,7 +1075,6 @@ $hasSession = $sessionUser !== null;
             const cart = getCart();
             const listEl = document.getElementById('cartItemsList');
             const totalEl = document.getElementById('cartTotalPrice');
-
             if (!listEl) return;
 
             if (cart.length === 0) {
@@ -1360,7 +1091,6 @@ $hasSession = $sessionUser !== null;
 
             let total = 0;
             let html = '';
-
             cart.forEach((item, idx) => {
                 total += item.tongTien;
                 html += `
@@ -1394,9 +1124,7 @@ $hasSession = $sessionUser !== null;
             document.getElementById('cartModal').classList.remove('hidden');
         }
 
-        function closeCartModal() {
-            document.getElementById('cartModal').classList.add('hidden');
-        }
+        function closeCartModal() { document.getElementById('cartModal').classList.add('hidden'); }
 
         async function checkoutCart() {
             const cart = getCart();
@@ -1443,6 +1171,7 @@ $hasSession = $sessionUser !== null;
                 showQuickToast(`Đặt mua thành công ${completed} sản phẩm. Hoa hồng ${new Intl.NumberFormat('vi-VN').format(commissionTotal)}₫ đã cộng vào ví thợ may.`);
             }
         }
+
         function showQuickToast(msg) {
             let toast = document.getElementById('quickToast');
             if (!toast) {
@@ -1453,20 +1182,13 @@ $hasSession = $sessionUser !== null;
             }
             toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 mr-2 text-sm"></i> <span>${msg}</span>`;
             toast.style.display = 'flex';
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
 
         document.addEventListener('DOMContentLoaded', updateCartBadge);
 
-        function openTailorOrdersModal() {
-            document.getElementById('tailorOrdersModal').classList.remove('hidden');
-        }
-
-        function closeTailorOrdersModal() {
-            document.getElementById('tailorOrdersModal').classList.add('hidden');
-        }
+        function openTailorOrdersModal() { document.getElementById('tailorOrdersModal').classList.remove('hidden'); }
+        function closeTailorOrdersModal() { document.getElementById('tailorOrdersModal').classList.add('hidden'); }
 
         function showQrModal(title, url) {
             document.getElementById('qrModalTitle').innerText = 'Mã QR - ' + title;
@@ -1479,9 +1201,7 @@ $hasSession = $sessionUser !== null;
             document.getElementById('qrModal').classList.remove('hidden');
         }
 
-        function closeQrModal() {
-            document.getElementById('qrModal').classList.add('hidden');
-        }
+        function closeQrModal() { document.getElementById('qrModal').classList.add('hidden'); }
 
         function previewUploadImage(event) {
             const file = event.target.files[0];
@@ -1512,25 +1232,17 @@ $hasSession = $sessionUser !== null;
             let parsedMet = 2.4;
             if (metricStr) {
                 const match = metricStr.match(/([0-9]+(\.[0-9]+)?)/);
-                if (match) {
-                    parsedMet = parseFloat(match[0]);
-                }
+                if (match) parsedMet = parseFloat(match[0]);
             }
             document.getElementById('buySoMet').value = parsedMet;
-            if (refCode) {
-                document.getElementById('buyRefCode').value = refCode;
-            }
-            if (tailorName) {
-                document.getElementById('buyTailorNameDisplay').innerText = tailorName;
-            }
+            if (refCode) document.getElementById('buyRefCode').value = refCode;
+            if (tailorName) document.getElementById('buyTailorNameDisplay').innerText = tailorName;
 
             calculateBuyTotal();
             document.getElementById('buyModal').classList.remove('hidden');
         }
 
-        function closeBuyModal() {
-            document.getElementById('buyModal').classList.add('hidden');
-        }
+        function closeBuyModal() { document.getElementById('buyModal').classList.add('hidden'); }
 
         function calculateBuyTotal() {
             const met = parseFloat(document.getElementById('buySoMet').value) || 0;
@@ -1543,18 +1255,12 @@ $hasSession = $sessionUser !== null;
 
         function formatCurrencyInput(input) {
             let val = input.value.replace(/\D/g, '');
-            if (val === '') {
-                input.value = '';
-                return;
-            }
-            input.value = new Intl.NumberFormat('vi-VN').format(parseInt(val, 10));
+            input.value = val === '' ? '' : new Intl.NumberFormat('vi-VN').format(parseInt(val, 10));
         }
 
         function setWithdrawAmount(amount) {
             const input = document.getElementById('withdrawAmount');
-            if (input) {
-                input.value = new Intl.NumberFormat('vi-VN').format(amount);
-            }
+            if (input) input.value = new Intl.NumberFormat('vi-VN').format(amount);
         }
 
         // ==========================================
@@ -1654,4 +1360,3 @@ $hasSession = $sessionUser !== null;
     </script>
 </body>
 </html>
-
