@@ -794,6 +794,137 @@ if (!empty($orders)) {
       </div>
     </section>
     <!-- END: ReviewModeration -->
+    <!-- SECTION 5: DUYỆT ĐĂNG KÝ THỢ MAY (AFFILIATE PARTNERS) -->
+    <section class="bg-white rounded-2xl border border-slate-200 p-5 space-y-4 shadow-sm" id="section-affiliate-requests">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center space-x-2.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">5. Duyệt Đăng Ký Thợ May (Affiliate Network)</h3>
+          <span id="badgeAffCount" class="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">0 Đơn chờ</span>
+        </div>
+        <button onclick="loadAffiliateRequests()" class="px-3 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-arrows-rotate text-[11px]"></i> Làm mới
+        </button>
+      </div>
+
+      <!-- Bảng danh sách đơn chờ duyệt -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200">
+        <table class="w-full text-left text-xs text-slate-600">
+          <thead class="bg-slate-50 text-slate-700 uppercase font-bold text-[11px] border-b border-slate-200">
+            <tr>
+              <th class="px-4 py-3">Mã ĐK</th>
+              <th class="px-4 py-3">Họ Tên Thợ May</th>
+              <th class="px-4 py-3">Email</th>
+              <th class="px-4 py-3">Số Điện Thoại</th>
+              <th class="px-4 py-3">Ngày Đăng Ký</th>
+              <th class="px-4 py-3">Trạng Thái</th>
+              <th class="px-4 py-3 text-right">Thao Tác</th>
+            </tr>
+          </thead>
+          <tbody id="affiliateTableBody" class="divide-y divide-slate-100">
+            <tr>
+              <td colspan="7" class="px-4 py-6 text-center text-slate-400">
+                <i class="fa-solid fa-spinner fa-spin mr-1"></i> Đang tải danh sách đăng ký thợ may...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <script>
+      async function loadAffiliateRequests() {
+        const tbody = document.getElementById('affiliateTableBody');
+        const badge = document.getElementById('badgeAffCount');
+        try {
+          const res = await fetch('/api/admin/affiliate-requests?trangThai=Chờ duyệt');
+          const result = await res.json();
+          if (!res.ok || result.status !== 'success') {
+            tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-4 text-center text-rose-500">Lỗi: ${result.message || 'Không thể tải danh sách'}</td></tr>`;
+            return;
+          }
+
+          const data = result.data || [];
+          badge.textContent = `${data.length} Đơn chờ`;
+
+          if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-6 text-center text-slate-400"><i class="fa-regular fa-circle-check text-emerald-500 text-base mr-1"></i> Không có đơn đăng ký thợ may nào đang chờ duyệt.</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = data.map(item => `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="px-4 py-3 font-mono font-bold text-slate-900">#AFF-${item.MaDKAff}</td>
+              <td class="px-4 py-3 font-bold text-slate-900">${escapeHtml(item.TenKH)}</td>
+              <td class="px-4 py-3 font-mono text-indigo-600">${escapeHtml(item.Email)}</td>
+              <td class="px-4 py-3 font-mono">${escapeHtml(item.SDT || '—')}</td>
+              <td class="px-4 py-3 text-slate-500">${item.NgayDangKy ? item.NgayDangKy.substring(0, 16) : '—'}</td>
+              <td class="px-4 py-3">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Chờ duyệt</span>
+              </td>
+              <td class="px-4 py-3 text-right space-x-1.5 whitespace-nowrap">
+                <button onclick="approveAffiliate(${item.MaDKAff}, '${escapeHtml(item.TenKH)}')" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition inline-flex items-center gap-1">
+                  <i class="fa-solid fa-check"></i> Duyệt
+                </button>
+                <button onclick="rejectAffiliate(${item.MaDKAff}, '${escapeHtml(item.TenKH)}')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs border border-rose-200 transition inline-flex items-center gap-1">
+                  <i class="fa-solid fa-xmark"></i> Từ chối
+                </button>
+              </td>
+            </tr>
+          `).join('');
+        } catch (e) {
+          tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-4 text-center text-rose-500">Lỗi kết nối máy chủ khi tải thợ may.</td></tr>`;
+        }
+      }
+
+      async function approveAffiliate(id, name) {
+        if (!confirm(`Xác nhận DUYỆT cho thợ may: "${name}"?\nSau khi duyệt, tài khoản này sẽ chính thức trở thành Affiliate và có thể đăng nhập vào Cổng Thợ May.`)) return;
+
+        try {
+          const res = await fetch(`/api/admin/affiliate-requests/approve?id=${id}`, { method: 'POST' });
+          const result = await res.json();
+          if (res.ok && result.status === 'success') {
+            alert(`🎉 Đã duyệt thành công cho thợ may: ${name}!`);
+            loadAffiliateRequests();
+          } else {
+            alert('Lỗi: ' + (result.message || 'Không thể duyệt'));
+          }
+        } catch (e) {
+          alert('Lỗi kết nối máy chủ.');
+        }
+      }
+
+      async function rejectAffiliate(id, name) {
+        const reason = prompt(`Nhập lý do từ chối thợ may "${name}":`, 'Không đủ điều kiện đối tác');
+        if (reason === null) return;
+
+        try {
+          const res = await fetch(`/api/admin/affiliate-requests/reject?id=${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ghiChu: reason })
+          });
+          const result = await res.json();
+          if (res.ok && result.status === 'success') {
+            alert(`Đã từ chối đơn của ${name}.`);
+            loadAffiliateRequests();
+          } else {
+            alert('Lỗi: ' + (result.message || 'Không thể từ chối'));
+          }
+        } catch (e) {
+          alert('Lỗi kết nối máy chủ.');
+        }
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>"']/g, function(m) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', loadAffiliateRequests);
+    </script>
   </div>
 </main>
 <!-- END: MainContentWorkspace -->

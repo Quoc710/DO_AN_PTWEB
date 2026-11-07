@@ -577,17 +577,68 @@ $projectRootDir = dirname(__DIR__, 5);
           });
         })();
       </script>
-      <!-- Admin Profile Avatar -->
-      <div class="flex items-center space-x-3 pl-3 border-l border-slate-200">
-        <div
-          class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-sm">
-          AD
-        </div>
-        <div class="hidden xl:block text-left">
-          <p class="text-xs font-semibold leading-tight text-slate-900">Trần Minh Quyền</p>
-          <p class="text-[10px] text-slate-400">Quản trị viên Cấp cao</p>
+      <!-- Admin Profile Avatar Dropdown -->
+      <?php
+        $adminUser = $_SESSION['user'] ?? null;
+        $adminName = $adminUser['TenNV'] ?? $adminUser['TenTK'] ?? 'Quản trị viên';
+        $adminRole = $adminUser['ViTri'] ?? 'Quản trị viên Cấp cao';
+        $adminInitial = mb_strtoupper(mb_substr($adminName, 0, 2, 'UTF-8'));
+      ?>
+      <div class="relative pl-3 border-l border-slate-200">
+        <button type="button" onclick="toggleAdminDropdown()" class="flex items-center space-x-2.5 p-1 rounded-xl hover:bg-slate-100 transition focus:outline-none text-left">
+          <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+            <?= htmlspecialchars($adminInitial) ?>
+          </div>
+          <div class="hidden xl:block text-left">
+            <p class="text-xs font-semibold leading-tight text-slate-900"><?= htmlspecialchars($adminName) ?></p>
+            <p class="text-[10px] text-slate-400"><?= htmlspecialchars($adminRole) ?></p>
+          </div>
+          <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 ml-1"></i>
+        </button>
+
+        <!-- Dropdown Popup Menu -->
+        <div id="adminDropdownMenu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50">
+          <div class="px-4 py-2.5 border-b border-slate-100 bg-slate-50/50 rounded-t-2xl">
+            <p class="text-xs font-bold text-slate-900"><?= htmlspecialchars($adminName) ?></p>
+            <p class="text-[10px] text-indigo-600 font-semibold"><?= htmlspecialchars($adminRole) ?></p>
+          </div>
+          <div class="py-1 text-xs text-slate-700">
+            <a href="/?module=dashboard" class="flex items-center px-4 py-2 hover:bg-slate-50 font-medium transition space-x-2.5">
+              <i class="fa-regular fa-user text-slate-400 w-4 text-center"></i>
+              <span>Hồ sơ quản trị</span>
+            </a>
+            <a href="/?module=lookbook" class="flex items-center px-4 py-2 hover:bg-slate-50 font-medium transition space-x-2.5 text-indigo-600">
+              <i class="fa-solid fa-store text-indigo-400 w-4 text-center"></i>
+              <span>Vào Cửa Hàng / Lookbook</span>
+            </a>
+          </div>
+          <div class="border-t border-slate-100 pt-1">
+            <button type="button" onclick="handleAdminLogout()" class="w-full flex items-center px-4 py-2 text-left text-xs text-rose-600 hover:bg-rose-50 font-semibold transition space-x-2.5">
+              <i class="fa-solid fa-arrow-right-from-bracket text-rose-500 w-4 text-center"></i>
+              <span>Đăng xuất</span>
+            </button>
+          </div>
         </div>
       </div>
+
+      <script>
+        function toggleAdminDropdown() {
+          const menu = document.getElementById('adminDropdownMenu');
+          if (menu) menu.classList.toggle('hidden');
+        }
+        document.addEventListener('click', (e) => {
+          const menu = document.getElementById('adminDropdownMenu');
+          const btn = e.target.closest('button[onclick="toggleAdminDropdown()"]');
+          if (menu && !menu.contains(e.target) && !btn) menu.classList.add('hidden');
+        });
+        async function handleAdminLogout() {
+          if (!confirm('Đăng xuất khỏi trang Quản trị?')) return;
+          try { await fetch('/api/tai-khoan/logout', { method: 'POST' }); } catch(e){}
+          localStorage.removeItem('aura_user');
+          localStorage.removeItem('aura_token');
+          window.location.href = '/?module=auth';
+        }
+      </script>
     </div>
   </header>
   <!-- END: TopHeader -->

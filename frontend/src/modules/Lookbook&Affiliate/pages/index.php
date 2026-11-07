@@ -1,3 +1,23 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$sessionUser = $_SESSION['user'] ?? null;
+$currentUserLoaiTK = strtolower((string)($sessionUser['LoaiTK'] ?? $sessionUser['LoaiKhach'] ?? ''));
+$canAccessTailor = ($currentUserLoaiTK === 'admin' 
+    || strpos($currentUserLoaiTK, 'affiliate') !== false 
+    || strpos($currentUserLoaiTK, 'thợ may') !== false 
+    || strpos($currentUserLoaiTK, 'tho may') !== false 
+    || strpos($currentUserLoaiTK, 'nhà may') !== false 
+    || strpos($currentUserLoaiTK, 'nha may') !== false);
+
+// Nếu chưa có session, hiển thị header "Khách" – JS sẽ cập nhật từ localStorage
+$displayName = $sessionUser ? ($sessionUser['TenKH'] ?? $sessionUser['TenNV'] ?? 'Khách') : 'Khách';
+$firstLetter = mb_strtoupper(mb_substr($displayName, 0, 1, 'UTF-8'));
+$roleTitle = $canAccessTailor ? ($currentUserLoaiTK === 'admin' ? 'Quản trị viên' : 'Thợ May (Affiliate)') : ($sessionUser ? 'Khách Hàng' : 'Khách');
+$userEmail = $sessionUser ? ($sessionUser['Email'] ?? ($sessionUser['TenTK'] ?? 'guest@auraminimal.vn')) : 'guest@auraminimal.vn';
+$hasSession = $sessionUser !== null;
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -49,14 +69,18 @@
 
                 <!-- Navigation Switch Tabs (3 Phân Hệ) -->
                 <nav class="flex items-center space-x-1 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
-                    <?php if ($tab !== 'tailor'): ?>
-
-<?php endif; ?>
-                    <a href="index.php?module=lookbook&amp;tab=tailor" class="flex items-center px-4 py-2 rounded-lg text-sm font-semibold transition-all <?= $tab === 'tailor' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900' ?>">
-                        <i class="fa-solid fa-scissors mr-2"></i> 2. Cổng Thợ May
-                    </a>
-                    <a href="index.php?module=lookbook&amp;tab=lookbook" class="flex items-center px-4 py-2 rounded-lg text-sm font-semibold transition-all <?= $tab === 'lookbook' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900' ?>">
-                        <i class="fa-solid fa-images mr-2"></i> 3. Storefront
+                    <?php if ($canAccessTailor): ?>
+                        <a id="btnCongThoMay" href="?module=lookbook&amp;tab=tailor" class="flex items-center px-4 py-2 rounded-lg text-sm font-semibold transition-all <?= $tab === 'tailor' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900' ?>">
+                            <i class="fa-solid fa-scissors mr-2"></i> 2. Cổng Thợ May
+                        </a>
+                    <?php else: ?>
+                        <button type="button" onclick="alert('⛔ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nBạn đang đăng nhập bằng tài khoản Khách Hàng thường. Chỉ có đối tác Thợ May (Affiliate) đã được Admin duyệt mới được vào Cổng Thợ May!')" class="flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-slate-400 bg-slate-100 cursor-not-allowed opacity-60 transition-all" title="Khóa: Chỉ dành riêng cho Thợ May (Affiliate)">
+                            <i class="fa-solid fa-scissors mr-2"></i> 2. Cổng Thợ May
+                            <span class="ml-1.5 text-xs text-rose-500 font-bold"><i class="fa-solid fa-lock"></i></span>
+                        </button>
+                    <?php endif; ?>
+                    <a href="?module=lookbook&amp;tab=lookbook" class="flex items-center px-4 py-2 rounded-lg text-sm font-semibold transition-all <?= $tab === 'lookbook' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900' ?>">
+                        <i class="fa-solid fa-images mr-2"></i> 3. Lookbook Khách Hàng
                     </a>
                 </nav>
 
@@ -72,10 +96,80 @@
                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span> MySQL Connected
                     </span>
-                    <div class="text-right hidden sm:block">
-                        <div class="text-xs font-bold text-slate-900">Admin Aura Studio</div>
-                        <div class="text-[11px] text-slate-500">Quản trị viên trưởng</div>
+                    <!-- User Profile Dropdown Menu -->
+                    <div class="relative" id="userMenuDropdownContainer">
+                        <button id="btnUserMenuProfile" type="button" onclick="toggleUserDropdown(event)" class="flex items-center space-x-2.5 p-1 pl-2.5 rounded-xl hover:bg-slate-100 transition border border-transparent hover:border-slate-200 text-left focus:outline-none cursor-pointer">
+                            <div class="text-right hidden sm:block">
+                                <div class="text-xs font-bold text-slate-900 leading-tight" id="headerDisplayName"><?= htmlspecialchars($displayName) ?></div>
+                                <div class="text-[10px] <?= $canAccessTailor ? 'text-indigo-600 font-bold' : 'text-slate-500' ?>" id="headerRoleTitle">
+                                    <?= $roleTitle ?>
+                                </div>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center shadow-sm border border-slate-700" id="headerAvatarLetter">
+                                <?= $firstLetter ?>
+                            </div>
+                            <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                        </button>
+
+                        <!-- Dropdown Popup -->
+                        <div id="userDropdownMenu" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 transform transition-all duration-200">
+                            <!-- Info Header -->
+                            <div class="px-4 py-3 border-b border-slate-100 bg-slate-50/50 rounded-t-2xl">
+                                <div class="text-xs font-bold text-slate-900" id="dropdownUserName"><?= htmlspecialchars($displayName) ?></div>
+                                <div class="text-[11px] text-slate-500 font-mono truncate" id="dropdownUserEmail"><?= htmlspecialchars($userEmail) ?></div>
+                                <div class="mt-1.5">
+                                    <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold <?= $canAccessTailor ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-slate-100 text-slate-600 border border-slate-200' ?>" id="dropdownRoleTag">
+                                        <?= $roleTitle ?>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Menu Items -->
+                            <div class="py-1 text-xs text-slate-700">
+                                <a href="/?module=dashboard" class="flex items-center px-4 py-2.5 hover:bg-slate-50 font-medium transition space-x-2.5">
+                                    <i class="fa-regular fa-user text-slate-400 w-4 text-center"></i>
+                                    <span>Thông tin tài khoản</span>
+                                </a>
+
+                                <?php if ($currentUserLoaiTK === 'admin'): ?>
+                                <a href="/admin" class="flex items-center px-4 py-2.5 hover:bg-slate-50 font-medium transition space-x-2.5 text-indigo-600">
+                                    <i class="fa-solid fa-gauge-high text-indigo-400 w-4 text-center"></i>
+                                    <span>Trang Quản trị Admin</span>
+                                </a>
+                                <?php endif; ?>
+
+                                <a href="/?module=don-hang" class="flex items-center px-4 py-2.5 hover:bg-slate-50 font-medium transition space-x-2.5">
+                                    <i class="fa-solid fa-box text-slate-400 w-4 text-center"></i>
+                                    <span>Quản lý đơn hàng</span>
+                                </a>
+                            </div>
+
+                            <!-- Logout Button -->
+                            <div class="border-t border-slate-100 pt-1">
+                                <button type="button" onclick="handleLogout()" class="w-full flex items-center px-4 py-2.5 text-left text-xs text-rose-600 hover:bg-rose-50 font-semibold transition space-x-2.5">
+                                    <i class="fa-solid fa-arrow-right-from-bracket text-rose-500 w-4 text-center"></i>
+                                    <span>Đăng xuất tài khoản</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
+                    <script>
+                        function toggleUserDropdown(e) {
+                            if (e) {
+                                e.stopPropagation();
+                                e.preventDefault();
+                            }
+                            var m = document.getElementById('userDropdownMenu');
+                            if (m) m.classList.toggle('hidden');
+                        }
+                        document.addEventListener('click', function(e) {
+                            var m = document.getElementById('userDropdownMenu');
+                            var c = document.getElementById('userMenuDropdownContainer');
+                            if (m && c && !c.contains(e.target)) {
+                                m.classList.add('hidden');
+                            }
+                        });
+                    </script>
                 </div>
             </div>
         </div>
@@ -1167,6 +1261,101 @@
         function setWithdrawAmount(amount) {
             const input = document.getElementById('withdrawAmount');
             if (input) input.value = new Intl.NumberFormat('vi-VN').format(amount);
+        }
+
+        // ==========================================
+        // PHÂN QUYỀN TRUY CẬP CỔNG THỢ MAY (AFFILIATE)
+        // ==========================================
+        function getUserInfo() {
+            try {
+                return JSON.parse(localStorage.getItem('aura_user')) || null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function checkIsAffiliateUser(user) {
+            if (!user) return false;
+            const role = String(user.LoaiTK || user.loaiTK || user.LoaiKhach || '').toLowerCase();
+            if (role === 'admin') return true;
+            return role.includes('affiliate') || role.includes('thợ may') || role.includes('tho may') || role.includes('nhà may') || role.includes('nha may');
+        }
+
+        function checkTailorAccess(event) {
+            const user = getUserInfo();
+            const isAffiliate = checkIsAffiliateUser(user);
+
+            if (!isAffiliate) {
+                if (event) event.preventDefault();
+                alert('⛔ QUYỀN TRUY CẬP BỊ TỪ CHỐI!\n\nBạn đang đăng nhập bằng tài khoản Khách Hàng thường. Chỉ có đối tác Thợ May (Affiliate) đã được Admin xét duyệt mới có thể vào Cổng Thợ May.');
+                return false;
+            }
+            return true;
+        }
+
+        // Kiểm tra quyền ngay khi trang vừa tải
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = getUserInfo();
+            const isAffiliate = checkIsAffiliateUser(user);
+
+            const btn = document.getElementById('btnCongThoMay');
+            const lockIcon = document.getElementById('tailorLockIcon');
+
+            if (!isAffiliate) {
+                if (lockIcon) lockIcon.classList.remove('hidden');
+                if (btn) {
+                    btn.classList.add('opacity-60', 'cursor-not-allowed');
+                    btn.title = 'Chỉ dành riêng cho đối tác Thợ May (Affiliate)';
+                }
+
+                // Nếu đang cố tình vào thẳng link tab=tailor mà không có quyền -> đá về tab lookbook
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('tab') === 'tailor') {
+                    alert('⛔ Bạn không có quyền truy cập Cổng Thợ May! Đang chuyển về Lookbook Khách Hàng.');
+                    window.location.href = '?module=lookbook&tab=lookbook';
+                }
+            }
+
+            // Cập nhật header avatar từ localStorage nếu session PHP trống (trường hợp cross-port)
+            const hasPhpSession = <?= $hasSession ? 'true' : 'false' ?>;
+            if (!hasPhpSession && user) {
+                const name = user.TenKH || user.TenNV || user.TenTK || 'Khách';
+                const email = user.Email || ('@' + (user.TenTK || 'guest'));
+                const loaiTK = String(user.LoaiTK || user.LoaiKhach || '').toLowerCase();
+                const isAff = loaiTK.includes('affiliate') || loaiTK === 'admin';
+                const role = loaiTK === 'admin' ? 'Quản trị viên' : (isAff ? 'Thợ May (Affiliate)' : 'Khách Hàng');
+                const letter = name.charAt(0).toUpperCase();
+
+                const nameEl = document.getElementById('headerDisplayName');
+                const roleEl = document.getElementById('headerRoleTitle');
+                const avatarEl = document.getElementById('headerAvatarLetter');
+                const dropNameEl = document.getElementById('dropdownUserName');
+                const dropEmailEl = document.getElementById('dropdownUserEmail');
+                const dropRoleEl = document.getElementById('dropdownRoleTag');
+
+                if (nameEl) nameEl.textContent = name;
+                if (roleEl) { roleEl.textContent = role; roleEl.className = 'text-[10px] ' + (isAff ? 'text-indigo-600 font-bold' : 'text-slate-500'); }
+                if (avatarEl) avatarEl.textContent = letter;
+                if (dropNameEl) dropNameEl.textContent = name;
+                if (dropEmailEl) dropEmailEl.textContent = email;
+                if (dropRoleEl) {
+                    dropRoleEl.textContent = role;
+                    dropRoleEl.className = 'inline-block px-2 py-0.5 rounded text-[10px] font-bold ' + (isAff ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-slate-100 text-slate-600 border border-slate-200');
+                }
+            }
+        });
+
+        // Xử lý Đăng xuất
+        async function handleLogout() {
+            if (!confirm('Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?')) return;
+
+            try {
+                await fetch('/api/tai-khoan/logout', { method: 'POST' });
+            } catch (e) {}
+
+            localStorage.removeItem('aura_user');
+            localStorage.removeItem('aura_token');
+            window.location.href = '/?module=auth';
         }
     </script>
 </body>

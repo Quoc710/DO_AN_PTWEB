@@ -9,6 +9,7 @@ services:
     volumes:
       - ./:/var/www/html
     environment: &db-env
+      DB_DRIVER: mysql
       DB_HOST: mysql
       DB_PORT: 3306
       DB_NAME: QuanLyCuaHangVai
@@ -56,6 +57,7 @@ services:
       - ./backend/database/migrations/schema_mysql.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
       - ./backend/database/migrations/20261103_admin_lookbook_affiliate.sql:/docker-entrypoint-initdb.d/02-admin-operations.sql:ro
       - ./backend/database/migrations/20261104_lookbook_affiliate_seed.sql:/docker-entrypoint-initdb.d/03-lookbook-affiliate-seed.sql:ro
+      - ./backend/database/migrations/add_auth_tables.sql:/docker-entrypoint-initdb.d/04-auth-tables.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 5s
