@@ -507,11 +507,16 @@
 
         // ---- XỬ LÝ KẾT QUẢ ----
         if (currentMode === 'register_kh') {
-          showSuccessHtml(`<div><strong>Đăng ký tài khoản thành công!</strong></div>
-            <div class="mt-1 text-xs">Email kích hoạt đã được gửi tới <strong>${username}</strong>. Vui lòng mở hòm thư của bạn để nhấn vào liên kết xác nhận trước khi đăng nhập.</div>
-            <div class="mt-2 text-[11px] text-green-900/80 bg-green-100/60 p-2 rounded border border-green-200 text-left">
-              💡 <strong>Lưu ý:</strong> Vui lòng kiểm tra cả mục <strong>Spam / Thư rác</strong> nếu không thấy trong <em>Hộp thư đến</em>.
-            </div>`);
+          const sentReal = data.data?.sent_real === true;
+          const activationLink = typeof data.data?.activation_link === 'string'
+            ? data.data.activation_link.replace(/[&<>"']/g, char => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+              })[char])
+            : '';
+          const activationNotice = sentReal
+            ? `<div class="mt-1 text-xs">Email kích hoạt đã được gửi tới <strong>${username}</strong>. Vui lòng kiểm tra cả mục Spam / Thư rác nếu chưa thấy thư.</div>`
+            : `<div class="mt-1 text-xs">Tài khoản đã được tạo nhưng email chưa được gửi. Hãy cấu hình SMTP. Liên kết kích hoạt dùng để thử nghiệm: <a class="underline font-bold break-all" href="${activationLink}">Mở liên kết kích hoạt</a></div>`;
+          showSuccessHtml(`<div><strong>Đăng ký tài khoản thành công!</strong></div>${activationNotice}`);
           document.getElementById('input-password').value = '';
           return;
         }

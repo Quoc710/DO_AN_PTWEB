@@ -130,6 +130,22 @@ if (!empty($orders)) {
       </div>
     </div>
   </div>
+  <section id="don-hang-online" class="rounded-xl border border-indigo-200 bg-white p-5 shadow-sm sm:p-6">
+    <div class="mb-4 flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-[10px] font-bold uppercase tracking-[.18em] text-indigo-600">VẬN HÀNH ĐƠN ONLINE</p>
+        <h2 class="mt-1 text-lg font-bold text-slate-900">Quản lý đơn hàng khách đặt</h2>
+        <p class="mt-1 text-xs text-slate-500">Bắt đầu giao sau khi đơn đã thanh toán hoặc chọn COD. Đơn đang giao sẽ tự hoàn tất khi hết thời hạn vận chuyển.</p>
+      </div>
+      <div class="flex gap-2">
+        <select id="adminOrderFilter" class="rounded-lg border-slate-200 text-xs font-semibold text-slate-700">
+          <option value="all">Tất cả trạng thái</option><option value="cho_thanh_toan">Chờ thanh toán</option><option value="dang_xu_ly">Đơn COD mới</option><option value="da_thanh_toan">Đã thanh toán</option><option value="dang_giao">Đang giao</option><option value="da_giao">Đã giao</option><option value="da_huy">Đã hủy</option>
+        </select>
+        <button id="refreshOnlineOrders" type="button" class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white hover:bg-slate-700"><i class="fa-solid fa-rotate mr-1"></i>Làm mới</button>
+      </div>
+    </div>
+    <div id="adminOnlineOrders" class="space-y-3"><div class="rounded-lg bg-slate-50 p-6 text-center text-xs text-slate-500">Đang tải đơn hàng online…</div></div>
+  </section>
   <!-- ========================================================================= -->
   <!-- SECTION A: TÍNH NĂNG LÕI: 1. ĐỒNG BỘ ĐƠN HÀNG & XUẤT EXCEL CHO ODOO -->
   <!-- ========================================================================= -->
@@ -580,7 +596,7 @@ if (!empty($orders)) {
             </label>
             <input
               class="bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs text-slate-800 shadow-sm focus:border-slate-900 focus:ring-0 cursor-pointer"
-              id="input-voucher-expiry" name="han_su_dung" type="date" value="2025-12-31" />
+              id="input-voucher-expiry" name="han_su_dung" type="date" value="<?= date('Y-m-d', strtotime('+30 days')) ?>" />
           </div>
           <button
             class="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg text-xs transition shadow-sm"
@@ -833,6 +849,90 @@ if (!empty($orders)) {
     </section>
 
     <script>
+      (() => {
+        const box = document.getElementById('adminOnlineOrders');
+        const filter = document.getElementById('adminOrderFilter');
+        if (!box || !filter) return;
+        let onlineOrders = [];
+        const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        const money = value => new Intl.NumberFormat('vi-VN').format(Math.round(Number(value) || 0)) + 'đ';
+        const statusNames = {cho_thanh_toan:'Chờ thanh toán',dang_xu_ly:'Đơn COD mới',da_thanh_toan:'Đã thanh toán',dang_giao:'Đang giao',da_giao:'Đã giao',da_huy:'Đã hủy'};
+        const statusClasses = {cho_thanh_toan:'bg-amber-50 text-amber-700 border-amber-200',dang_xu_ly:'bg-blue-50 text-blue-700 border-blue-200',da_thanh_toan:'bg-indigo-50 text-indigo-700 border-indigo-200',dang_giao:'bg-violet-50 text-violet-700 border-violet-200',da_giao:'bg-emerald-50 text-emerald-700 border-emerald-200',da_huy:'bg-rose-50 text-rose-700 border-rose-200'};
+        const shipping = {economy:['Tiết kiệm',6],standard:['Tiêu chuẩn',4],express:['Hỏa tốc',2]};
+        function headers(json = false) {
+          const token = localStorage.getItem('aura_token');
+          return {...(json ? {'Content-Type':'application/json'} : {}),Accept:'application/json',...(token ? {Authorization:'Bearer '+token} : {})};
+        }
+        function render() {
+          const selected = filter.value;
+          const visible = onlineOrders.filter(order => selected === 'all' || order.TrangThai === selected);
+          if (!visible.length) {
+            box.innerHTML = '<div class="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-8 text-center text-xs text-slate-500">Không có đơn hàng ở trạng thái này.</div>';
+            return;
+          }
+          box.innerHTML = visible.map(order => {
+            const status = order.TrangThai || '';
+            const carrier = shipping[order.MaVanChuyen] || shipping.standard;
+            const items = (order.items || []).map(item => `${esc(item.TenSP)} · ${Number(item.SoMet)||0}m`).join(' / ');
+            let action = '';
+            if (['da_thanh_toan','dang_xu_ly'].includes(status)) action = `<button data-order-action="start" data-code="${esc(order.MaDon)}" class="rounded-lg bg-indigo-600 px-3 py-2 text-[11px] font-bold text-white hover:bg-indigo-700"><i class="fa-solid fa-truck-fast mr-1"></i>Bắt đầu giao</button>`;
+            if (status === 'dang_giao') action = `<button data-order-action="delivered" data-code="${esc(order.MaDon)}" class="rounded-lg bg-emerald-600 px-3 py-2 text-[11px] font-bold text-white hover:bg-emerald-700"><i class="fa-solid fa-circle-check mr-1"></i>Xác nhận giao thành công</button>`;
+            let deadline = '';
+            if (status === 'dang_giao' && order.NgayBatDauGiao) {
+              const date = new Date(String(order.NgayBatDauGiao).replace(' ','T'));
+              date.setDate(date.getDate() + carrier[1]);
+              deadline = ` · Tự hoàn tất sau ${carrier[1]} ngày (dự kiến ${date.toLocaleDateString('vi-VN')})`;
+            }
+            const actorNames = {admin:'Admin',khach_hang:'Khách hàng',tu_dong:'Hệ thống tự động'};
+            const record = status === 'da_giao'
+              ? ` · Ghi nhận giao thành công ${esc(order.NgayGiaoThanhCong || '')} (${actorNames[order.XacNhanGiaoBoi] || 'đã ghi nhận'})`
+              : status === 'da_huy' ? ` · Đơn hủy ${esc(order.NgayCapNhat || '')}` : '';
+            return `<article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div class="min-w-0 flex-1">
+                  <div class="flex flex-wrap items-center gap-2"><strong class="font-mono text-sm text-slate-900">#${esc(order.MaDon)}</strong><span class="rounded-full border px-2.5 py-1 text-[10px] font-bold ${statusClasses[status] || 'bg-slate-100 text-slate-600 border-slate-200'}">${statusNames[status] || esc(status)}</span><span class="text-[10px] text-slate-400">${esc(order.NgayTao || '')}</span></div>
+                  <div class="mt-2 text-xs font-semibold text-slate-800">${esc(order.TenKH)} · ${esc(order.SDT)}</div>
+                  <div class="mt-1 truncate text-[11px] text-slate-500" title="${esc(order.DiaChi)}">${esc(order.DiaChi)}</div>
+                  <div class="mt-1 text-[11px] text-slate-500">${items || 'Không có dòng sản phẩm'} · ${esc(carrier[0])} (${money(order.PhiVanChuyen)})${deadline}${record}</div>
+                </div>
+                <div class="flex items-center justify-between gap-3 lg:justify-end"><strong class="whitespace-nowrap text-sm text-slate-900">${money(order.TongThanhToan)}</strong>${action}</div>
+              </div>
+            </article>`;
+          }).join('');
+        }
+        async function load() {
+          box.innerHTML = '<div class="rounded-lg bg-slate-50 p-6 text-center text-xs text-slate-500">Đang tải và cập nhật thời hạn giao…</div>';
+          try {
+            const response = await fetch('/api/admin/don-hang-online', {credentials:'same-origin',headers:headers()});
+            const result = await response.json();
+            if (!response.ok || result.status !== 'success') throw new Error(result.message || 'Không tải được đơn hàng.');
+            onlineOrders = result.data.orders || [];
+            render();
+          } catch (error) {
+            box.innerHTML = `<div class="rounded-lg border border-rose-200 bg-rose-50 p-5 text-center text-xs text-rose-700">${esc(error.message)}<br><span class="mt-1 inline-block text-[10px]">Vui lòng đăng nhập tài khoản Admin rồi tải lại trang.</span></div>`;
+          }
+        }
+        box.addEventListener('click', async event => {
+          const button = event.target.closest('[data-order-action]');
+          if (!button) return;
+          const start = button.dataset.orderAction === 'start';
+          const label = start ? 'bắt đầu giao' : 'xác nhận giao thành công';
+          if (!window.confirm(`Bạn muốn ${label} đơn ${button.dataset.code}?`)) return;
+          button.disabled = true;
+          const action = start ? 'bat-dau-giao' : 'xac-nhan-giao';
+          try {
+            const response = await fetch(`/api/admin/don-hang-online/${encodeURIComponent(button.dataset.code)}/${action}`, {method:'POST',credentials:'same-origin',headers:headers(true),body:'{}'});
+            const result = await response.json();
+            if (!response.ok || result.status !== 'success') throw new Error(result.message || 'Không cập nhật được đơn.');
+            await load();
+          } catch (error) { window.alert(error.message); button.disabled = false; }
+        });
+        filter.addEventListener('change', render);
+        document.getElementById('refreshOnlineOrders')?.addEventListener('click', load);
+        load();
+        window.setInterval(load, 60000);
+      })();
+
       async function loadAffiliateRequests() {
         const tbody = document.getElementById('affiliateTableBody');
         const badge = document.getElementById('badgeAffCount');

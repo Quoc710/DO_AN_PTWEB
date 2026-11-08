@@ -8,13 +8,28 @@ services:
       - "8082:80"
     volumes:
       - ./:/var/www/html
-    environment: &db-env
+    environment: &app-env
       DB_DRIVER: mysql
       DB_HOST: mysql
       DB_PORT: 3306
       DB_NAME: QuanLyCuaHangVai
       DB_USER: root
       DB_PASS: ${MYSQL_ROOT_PASSWORD:-root}
+      APP_URL: ${APP_URL:-http://localhost:8082}
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USER: ${MAIL_USER:-}
+      MAIL_PASS: ${MAIL_PASS:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-AURA MINIMAL}
+      # Cấu hình ngân hàng nhận thanh toán VietQR
+      BANK_ID: ${BANK_ID:-}
+      BANK_NAME: ${BANK_NAME:-}
+      BANK_ACCOUNT: ${BANK_ACCOUNT:-}
+      BANK_ACCOUNT_NAME: ${BANK_ACCOUNT_NAME:-}
+      BANK_QR_TEMPLATE: ${BANK_QR_TEMPLATE:-compact2}
+      BANK_WEBHOOK_KEY: ${BANK_WEBHOOK_KEY:-aura-demo-key}
+      PAYMENT_DEMO_CONFIRM: ${PAYMENT_DEMO_CONFIRM:-true}
     depends_on:
       mysql:
         condition: service_healthy
@@ -27,10 +42,23 @@ services:
       - "8002:80"
     volumes:
       - ./:/var/www/html
-    environment: *db-env
+    environment: *app-env
     depends_on:
       mysql:
         condition: service_healthy
+
+  order-scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    command: ["/bin/sh", "-c", "while true; do php /var/www/html/backend/scripts/auto_confirm_deliveries.php || true; sleep 60; done"]
+    volumes:
+      - ./:/var/www/html
+    environment: *app-env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
 
   phpmyadmin:
     image: phpmyadmin:5.2-apache
@@ -58,6 +86,7 @@ services:
       - ./backend/database/migrations/20261103_admin_lookbook_affiliate.sql:/docker-entrypoint-initdb.d/02-admin-operations.sql:ro
       - ./backend/database/migrations/20261104_lookbook_affiliate_seed.sql:/docker-entrypoint-initdb.d/03-lookbook-affiliate-seed.sql:ro
       - ./backend/database/migrations/add_auth_tables.sql:/docker-entrypoint-initdb.d/04-auth-tables.sql:ro
+      - ./backend/database/migrations/20261108_gio_hang_thanh_toan.sql:/docker-entrypoint-initdb.d/05-cart-checkout.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 5s

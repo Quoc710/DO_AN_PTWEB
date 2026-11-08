@@ -45,6 +45,20 @@ if ($module === 'don-hang' || $module === 'don_hang' || $module === 'orders') {
     exit;
 }
 
-// 6. Mặc định: Trung tâm Quản trị Admin
+// 6. Phân hệ Giỏ hàng & Thanh toán
+if ($module === 'cart' || $module === 'gio-hang' || $module === 'gio_hang') {
+    require __DIR__ . '/frontend/src/modules/Gio_hang&Thanh_toan/pages/cart.php';
+    exit;
+}
+if ($module === 'checkout' || $module === 'thanh-toan' || $module === 'thanh_toan') {
+    require __DIR__ . '/frontend/src/modules/Gio_hang&Thanh_toan/pages/checkout.php';
+    exit;
+}
+if ($module === 'success' || $module === 'thanh-cong' || $module === 'dat-hang-thanh-cong') {
+    require __DIR__ . '/frontend/src/modules/Gio_hang&Thanh_toan/pages/success.php';
+    exit;
+}
+
+// 7. Mặc định: Trung tâm Quản trị Admin
 require_once __DIR__ . '/backend/src/Modules/Admin/routes.php';
 dispatchAdminModuleRoutes();

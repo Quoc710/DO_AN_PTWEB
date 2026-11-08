@@ -342,7 +342,7 @@ class ProductController
                 'gia_tri'          => $_POST['gia_tri'] ?? 0,
                 'loai_giam'        => $_POST['loai_giam'] ?? '%',
                 'gioi_han_luot'    => $_POST['gioi_han_luot'] ?? 100,
-                'han_su_dung'      => $_POST['han_su_dung'] ?? '2025-12-31',
+                'han_su_dung'      => $_POST['han_su_dung'] ?? date('Y-m-d', strtotime('+30 days')),
                 'ten_chuong_trinh' => $_POST['ten_chuong_trinh'] ?? null,
                 'mo_ta_dieu_kien'  => $_POST['mo_ta_dieu_kien'] ?? null
             ];

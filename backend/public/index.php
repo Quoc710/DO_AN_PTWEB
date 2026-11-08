@@ -53,6 +53,21 @@ $handleHomeOrLookbook = function () {
         exit;
     }
 
+    if ($module === 'cart' || $module === 'gio-hang' || $module === 'gio_hang') {
+        require __DIR__ . '/../../frontend/src/modules/Gio_hang&Thanh_toan/pages/cart.php';
+        exit;
+    }
+
+    if ($module === 'checkout' || $module === 'thanh-toan' || $module === 'thanh_toan') {
+        require __DIR__ . '/../../frontend/src/modules/Gio_hang&Thanh_toan/pages/checkout.php';
+        exit;
+    }
+
+    if ($module === 'success' || $module === 'thanh-cong' || $module === 'dat-hang-thanh-cong') {
+        require __DIR__ . '/../../frontend/src/modules/Gio_hang&Thanh_toan/pages/success.php';
+        exit;
+    }
+
     if ($module === 'admin') {
         if (function_exists('dispatchAdminModuleRoutes')) {
             dispatchAdminModuleRoutes();

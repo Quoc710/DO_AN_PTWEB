@@ -6,6 +6,9 @@
 .env
 .env.*
 !.env.example
+!.env.smtp.example
+!.env.docker.example
+.env.smtp.local
 *.pem
 *.key
 
