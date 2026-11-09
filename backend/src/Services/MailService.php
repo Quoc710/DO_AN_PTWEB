@@ -126,7 +126,7 @@ class MailService
     </tr>
     <tr>
       <td style="padding: 32px;">
-        <h1 style="font-size: 20px; font-weight: 600; margin: 0 0 12px; color: #1a1a28;">Xác thực tài khoản nhân viên</h1>
+        <h1 style="font-size: 20px; font-weight: 600; margin: 0 0 12px; color: #1a1a28;">Xác thực tài khoản khách hàng</h1>
         <p style="font-size: 14px; line-height: 1.6; color: #47464b; margin: 0 0 20px;">
           Xin chào <strong>{$safeName}</strong>,<br>
           Bạn vừa đăng ký tài khoản nhân viên tại hệ thống <strong>AURA MINIMAL</strong>. Để hoàn tất quá trình và kích hoạt tài khoản của bạn, vui lòng bấm vào nút bên dưới:

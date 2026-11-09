@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đơn hàng của tôi · Aura Fabrics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>body{font-family:'Be Vietnam Pro',sans-serif}.material-symbols-outlined{font-size:20px;vertical-align:middle}</style>
+</head>
+<body class="min-h-screen bg-[#f7f8fc] text-slate-900">
+  <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
+    <div class="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
+      <a href="/index.php?module=lookbook&tab=lookbook" class="flex items-center gap-3">
+        <span class="grid h-10 w-10 place-items-center rounded-xl bg-slate-900 text-lg font-extrabold text-white">A</span>
+        <span><strong class="block text-sm">Aura Fabrics</strong><small class="text-[10px] font-semibold uppercase tracking-[.18em] text-indigo-600">Tủ đơn hàng</small></span>
+      </a>
+      <nav class="flex items-center gap-2 text-xs font-semibold sm:gap-4 sm:text-sm">
+        <a class="rounded-lg px-3 py-2 text-slate-500 hover:bg-slate-100" href="/index.php?module=lookbook&tab=lookbook">Cửa hàng</a>
+        <a class="rounded-lg bg-slate-900 px-3 py-2 text-white" href="/index.php?module=don-hang">Đơn hàng của tôi</a>
+        <a class="hidden rounded-lg px-3 py-2 text-slate-500 hover:bg-slate-100 sm:inline-flex" href="/index.php?module=dashboard">Tài khoản</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-5xl px-4 py-8 sm:py-12">
+    <section class="relative mb-7 overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-6 text-white shadow-lg sm:p-9">
+      <div class="absolute -right-8 -top-12 h-48 w-48 rounded-full bg-indigo-400/20 blur-3xl"></div>
+      <div class="relative flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+        <div><span class="mb-3 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold text-indigo-100"><span class="material-symbols-outlined">local_mall</span> MUA SẮM CỦA BẠN</span>
+          <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">Đơn hàng của tôi</h1>
+          <p class="mt-2 max-w-lg text-sm leading-6 text-slate-300">Theo dõi đơn vải, trạng thái thanh toán và lựa chọn giao hàng trong một nơi.</p>
+        </div>
+        <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
+          <span class="grid h-10 w-10 place-items-center rounded-xl bg-white/10 text-indigo-200"><span class="material-symbols-outlined">package_2</span></span>
+          <span><small class="block text-[10px] uppercase tracking-wider text-slate-300">Tổng số đơn</small><strong id="orderCount" class="text-xl">—</strong></span>
+        </div>
+      </div>
+    </section>
+
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap gap-2" id="filters">
+        <button data-filter="all" class="filter-chip rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white">Tất cả</button>
+        <button data-filter="cho_thanh_toan" class="filter-chip rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:border-amber-300">Chờ thanh toán</button>
+        <button data-filter="dang_xu_ly" class="filter-chip rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:border-blue-300">Đang xử lý</button>
+        <button data-filter="dang_giao" class="filter-chip rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:border-violet-300">Đang giao</button>
+        <button data-filter="da_thanh_toan" class="filter-chip rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:border-emerald-300">Đã thanh toán</button>
+        <button data-filter="da_giao" class="filter-chip rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:border-emerald-300">Đã giao</button>
+        <button data-filter="da_huy" class="filter-chip rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:border-rose-300">Đã hủy</button>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button id="refreshOrders" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"><span class="material-symbols-outlined">refresh</span>Làm mới</button>
+      </div>
+    </div>
+
+    <div id="ordersList" class="space-y-4">
+      <div class="rounded-2xl border border-slate-200 bg-white p-10 text-center text-sm text-slate-500"><span class="material-symbols-outlined mb-2 block text-3xl">progress_activity</span>Đang tải đơn hàng…</div>
+    </div>
+    <div id="emptyOrders" class="hidden rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
+      <span class="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-indigo-50 text-indigo-600"><span class="material-symbols-outlined text-3xl">shopping_bag</span></span>
+      <h2 class="mt-4 text-lg font-bold">Chưa có đơn hàng nào</h2><p class="mt-1 text-sm text-slate-500">Khi bạn đặt vải, đơn hàng sẽ xuất hiện ở đây.</p>
+      <a href="/index.php?module=lookbook&tab=lookbook" class="mt-5 inline-flex rounded-xl bg-slate-900 px-5 py-3 text-sm font-bold text-white hover:bg-slate-700">Khám phá vải</a>
+    </div>
+    <div id="ordersError" class="hidden rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center">
+      <span class="material-symbols-outlined text-amber-700">lock</span><p id="ordersErrorText" class="mt-2 text-sm font-semibold text-amber-900"></p>
+      <a id="loginLink" href="/index.php?module=auth" class="mt-4 inline-flex rounded-lg bg-slate-900 px-4 py-2 text-xs font-bold text-white">Đăng nhập</a>
+    </div>
+  </main>
+
+  <script>
+  (() => {
+    const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const money = value => new Intl.NumberFormat('vi-VN').format(Math.round(Number(value) || 0)) + 'đ';
+    const shipping = {economy:'Tiết kiệm',standard:'Tiêu chuẩn',express:'Hỏa tốc'};
+    const statuses = {
+      cho_thanh_toan:['Chờ thanh toán','bg-amber-50 text-amber-800 border-amber-200'],
+      dang_xu_ly:['Đang xử lý','bg-blue-50 text-blue-800 border-blue-200'],
+      dang_giao:['Đang giao','bg-violet-50 text-violet-800 border-violet-200'],
+      da_thanh_toan:['Đã thanh toán','bg-emerald-50 text-emerald-800 border-emerald-200'],
+      hoan_tat:['Hoàn tất','bg-emerald-50 text-emerald-800 border-emerald-200'],
+      da_giao:['Đã giao thành công','bg-emerald-50 text-emerald-800 border-emerald-200'],
+      da_huy:['Đã hủy','bg-rose-50 text-rose-800 border-rose-200']
+    };
+    let orders = [], activeFilter = 'all';
+    const list = document.getElementById('ordersList');
+    function render() {
+      const visible = orders.filter(order => activeFilter === 'all' || order.TrangThai === activeFilter || (activeFilter === 'da_thanh_toan' && order.TrangThai === 'hoan_tat'));
+      document.getElementById('orderCount').textContent = orders.length;
+      document.getElementById('emptyOrders').classList.toggle('hidden', visible.length !== 0);
+      list.classList.toggle('hidden', visible.length === 0);
+      list.innerHTML = visible.map(order => {
+        const [label, badge] = statuses[order.TrangThai] || ['Đang cập nhật','bg-slate-100 text-slate-700 border-slate-200'];
+        const date = order.NgayTao ? new Date(String(order.NgayTao).replace(' ','T')).toLocaleString('vi-VN') : '—';
+        const items = Array.isArray(order.items) ? order.items : [];
+        const totalMeters = items.reduce((sum, item) => sum + (Number(item.SoMet) || 0), 0);
+        return `<article class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/70 px-5 py-4">
+            <div><div class="flex flex-wrap items-center gap-2"><strong class="font-mono text-sm">#${escapeHtml(order.MaDon)}</strong><span class="rounded-full border px-2.5 py-1 text-[10px] font-bold ${badge}">${label}</span></div><p class="mt-1 text-[11px] text-slate-500">Đặt lúc ${escapeHtml(date)}</p></div>
+            <div class="text-right"><small class="block text-[10px] uppercase tracking-wider text-slate-400">Tổng thanh toán</small><strong class="text-lg text-slate-900">${money(order.TongThanhToan)}</strong></div>
+          </div>
+          <div class="grid gap-4 p-5 sm:grid-cols-[1fr_auto] sm:items-center">
+            <div class="min-w-0"><div class="flex items-center gap-2 text-xs font-semibold text-slate-700"><span class="material-symbols-outlined text-indigo-600">inventory_2</span>${items.length} mặt hàng · ${totalMeters.toLocaleString('vi-VN')} m vải</div>
+              <p class="mt-2 truncate text-xs text-slate-500">${items.map(item => `${escapeHtml(item.TenSP)} (${Number(item.SoMet)||0}m)`).join(' · ') || 'Chưa có chi tiết sản phẩm'}</p>
+              <div class="mt-3 flex flex-wrap gap-2"><span class="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-1 text-[10px] font-semibold text-indigo-700"><span class="material-symbols-outlined text-sm">local_shipping</span>${escapeHtml(shipping[order.MaVanChuyen] || 'Tiêu chuẩn')} · ${money(order.PhiVanChuyen)}</span><span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold text-slate-600"><span class="material-symbols-outlined text-sm">${order.PhuongThucThanhToan === 'cod' ? 'payments' : 'qr_code_2'}</span>${order.PhuongThucThanhToan === 'cod' ? 'Thanh toán khi nhận' : 'VietQR'}</span></div>
+            </div>
+            <div class="flex flex-wrap gap-2 sm:justify-end">
+              ${order.TrangThai === 'dang_giao' ? `<button data-customer-action="delivered" data-code="${escapeHtml(order.MaDon)}" class="inline-flex items-center justify-center gap-1 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-emerald-700"><span class="material-symbols-outlined text-base">task_alt</span>Đã nhận hàng</button><button data-customer-action="cancel" data-code="${escapeHtml(order.MaDon)}" class="inline-flex items-center justify-center gap-1 rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-xs font-bold text-rose-700 hover:bg-rose-50"><span class="material-symbols-outlined text-base">cancel</span>Hủy đơn</button>` : ''}
+              <a href="/index.php?module=success&code=${encodeURIComponent(order.MaDon)}" class="inline-flex items-center justify-center gap-1 rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-bold text-slate-700 hover:border-slate-400 hover:bg-slate-50">Chi tiết đơn<span class="material-symbols-outlined text-base">arrow_forward</span></a>
+            </div>
+          </div>
+        </article>`;
+      }).join('');
+    }
+    async function loadOrders() {
+      list.classList.remove('hidden');
+      document.getElementById('emptyOrders').classList.add('hidden');
+      document.getElementById('ordersError').classList.add('hidden');
+      list.innerHTML = '<div class="rounded-2xl border border-slate-200 bg-white p-10 text-center text-sm text-slate-500"><span class="material-symbols-outlined mb-2 block text-3xl">progress_activity</span>Đang tải đơn hàng…</div>';
+      const token = localStorage.getItem('aura_token');
+      try {
+        const response = await fetch('/api/gio-hang/don-hang-cua-toi', {credentials:'same-origin', headers:{Accept:'application/json', ...(token ? {Authorization:'Bearer '+token} : {})}});
+        const result = await response.json();
+        if (!response.ok || result.status !== 'success') throw new Error(result.message || 'Không tải được danh sách đơn.');
+        orders = result.data.orders || [];
+        render();
+      } catch (error) {
+        list.classList.add('hidden');
+        document.getElementById('ordersError').classList.remove('hidden');
+        document.getElementById('ordersErrorText').textContent = error.message.includes('đăng nhập') || error.message.includes('Đăng nhập')
+          ? 'Đăng nhập tài khoản khách hàng để xem các đơn mua gắn với tài khoản này.'
+          : error.message;
+      }
+    }
+    list.addEventListener('click', async event => {
+      const button = event.target.closest('[data-customer-action]'); if (!button) return;
+      const action = button.dataset.customerAction;
+      const verb = action === 'delivered' ? 'xác nhận đã nhận hàng' : 'hủy đơn trong thời gian giao';
+      if (!window.confirm(`Bạn có chắc muốn ${verb} ${button.dataset.code}?`)) return;
+      button.disabled = true;
+      const suffix = action === 'delivered' ? 'khach-xac-nhan-giao' : 'khach-huy';
+      const token = localStorage.getItem('aura_token');
+      try {
+        const response = await fetch(`/api/gio-hang/don-hang/${encodeURIComponent(button.dataset.code)}/${suffix}`, {
+          method:'POST', credentials:'same-origin', headers:{Accept:'application/json', ...(token ? {Authorization:'Bearer '+token} : {})}, body:'{}'
+        });
+        const result = await response.json();
+        if (!response.ok || result.status !== 'success') throw new Error(result.message || 'Không cập nhật được đơn hàng.');
+        await loadOrders();
+      } catch (error) { window.alert(error.message); button.disabled = false; }
+    });
+    document.getElementById('filters').addEventListener('click', event => {
+      const button = event.target.closest('[data-filter]'); if (!button) return;
+      activeFilter = button.dataset.filter;
+      document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.className = chip === button ? 'filter-chip rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white' : 'filter-chip rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:border-indigo-300';
+      });
+      render();
+    });
+    document.getElementById('refreshOrders').addEventListener('click', loadOrders);
+    loadOrders();
+    window.setInterval(loadOrders, 60000);
+  })();
+  </script>
+</body>
+</html>

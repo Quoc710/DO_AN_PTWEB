@@ -86,12 +86,12 @@ $hasSession = $sessionUser !== null;
 
                 <!-- User status right side -->
                 <div class="flex items-center space-x-3">
-                    <!-- Nút Giỏ Hàng Lookbook -->
-                    <button onclick="openCartModal()" class="relative flex items-center px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-sm">
+                    <!-- Nút Giỏ Hàng: chuyển thẳng sang trang Giỏ hàng -->
+                    <a href="/index.php?module=cart" id="headerCartLink" class="relative flex items-center px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-sm" title="Mở trang giỏ hàng">
                         <i class="fa-solid fa-cart-shopping mr-1.5 text-indigo-400"></i>
                         <span>Giỏ hàng</span>
-                        <span id="cartCountBadge" class="ml-1.5 px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-extrabold min-w-[18px] text-center">0</span>
-                    </button>
+                        <span id="cartCountBadge" class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-extrabold flex items-center justify-center border border-white">0</span>
+                    </a>
 
                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span> MySQL Connected
@@ -692,7 +692,7 @@ $hasSession = $sessionUser !== null;
                                 <i class="fa-solid fa-bolt mr-1.5 text-amber-400"></i> Mua ngay
                             </button>
 
-                            <button onclick="addToCartItem('<?= addslashes($lb['MaVaiCode']) ?>', '<?= addslashes($lb['TenSP']) ?>', '<?= addslashes($lb['DinhLuongVai']) ?>', <?= $lb['DonGia'] ?: 185000 ?>, '<?= addslashes($lb['URLHinhAnh']) ?>', '<?= addslashes($refCode ?: ($tailor['AffiliateCode'] ?? '')) ?>')" class="px-3 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold transition-all flex items-center justify-center whitespace-nowrap" title="Thêm mét vải vào giỏ hàng">
+                            <button onclick="openAffiliateBuyModal('<?= addslashes($lb['TenLookBook']) ?>', '<?= addslashes($lb['URLHinhAnh']) ?>', '<?= addslashes($lb['MaVaiCode']) ?>', '<?= addslashes($lb['TenSP']) ?>', <?= $lb['DonGia'] ?: 185000 ?>, '<?= addslashes($lb['DinhLuongVai']) ?>', '<?= addslashes($refCode ?: ($tailor['AffiliateCode'] ?? '')) ?>', '<?= addslashes($referralTailor['TenTiemMay'] ?? ($tailor['TenTiemMay'] ?? 'Nhà May Hoàng Kim')) ?>', 'add')" class="px-3 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold transition-all flex items-center justify-center whitespace-nowrap" title="Thêm mét vải vào giỏ hàng">
                                 <i class="fa-solid fa-cart-plus mr-1"></i> + Giỏ
                             </button>
 
@@ -759,44 +759,6 @@ $hasSession = $sessionUser !== null;
         </div>
     </div>
 
-    <!-- POPUP MODAL GIỎ HÀNG LOOKBOOK (KẾT NỐI MODULE 2 CỦA BẠN TÂY) -->
-    <div id="cartModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white max-w-lg w-full rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
-                <div>
-                    <span class="text-[11px] font-bold text-indigo-600 uppercase tracking-wider">GIỎ HÀNG VẢI LOOKBOOK</span>
-                    <h3 class="text-base font-bold text-slate-900 flex items-center mt-0.5">
-                        <i class="fa-solid fa-cart-shopping mr-2 text-indigo-600"></i> Các Mét Vải Đã Chọn Mua (<span id="cartModalHeaderCount">0</span>)
-                    </h3>
-                </div>
-                <button onclick="closeCartModal()" class="text-slate-400 hover:text-slate-600 text-lg w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="p-6 overflow-y-auto space-y-3 flex-1" id="cartItemsList"></div>
-
-            <div class="p-5 border-t border-slate-100 bg-slate-50 space-y-3">
-                <div class="flex items-center justify-between text-xs">
-                    <span class="text-slate-500 font-semibold">Tổng tiền vải:</span>
-                    <span id="cartTotalPrice" class="text-lg font-extrabold text-indigo-600">0₫</span>
-                </div>
-                <div class="p-2.5 rounded-xl bg-indigo-50/80 border border-indigo-100 text-[11px] text-indigo-800 flex items-center">
-                    <i class="fa-solid fa-link mr-2 text-indigo-600 text-sm"></i>
-                    <span>Giỏ hàng tự động đồng bộ sang <strong>Module 2 (Giỏ hàng & Thanh toán của Tây)</strong>.</span>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="checkoutCart()" class="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center">
-                        <i class="fa-solid fa-credit-card mr-2 text-emerald-400"></i> Tiến hành Thanh toán (Module 2) &rarr;
-                    </button>
-                    <button onclick="closeCartModal()" class="px-4 py-3 bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 rounded-xl text-xs font-semibold transition-all">
-                        Đóng
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- POPUP MODAL MUA VẢI TRỰC TIẾP TỪ LOOKBOOK & TÍNH HOA HỒNG AFFILIATE 5% -->
     <div id="buyModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white max-w-lg w-full rounded-2xl overflow-hidden shadow-2xl flex flex-col">
@@ -812,11 +774,26 @@ $hasSession = $sessionUser !== null;
                 </button>
             </div>
 
-            <form method="POST" class="p-6 space-y-4">
+            <form method="POST" id="buyForm" class="p-6 space-y-4">
                 <input type="hidden" name="action" value="buy_via_affiliate">
                 <input type="hidden" name="refCode" id="buyRefCode" value="<?= htmlspecialchars($refCode ?: ($tailor['AffiliateCode'] ?? '')) ?>">
                 <input type="hidden" name="maVaiCode" id="buyMaVaiCode" value="#LN-55">
                 <input type="hidden" name="donGia" id="buyDonGia" value="185000">
+
+                <!-- Chọn chế độ: Mua ngay hoặc Thêm vào giỏ -->
+                <div class="grid grid-cols-2 gap-1 p-1 rounded-xl bg-slate-100" role="tablist" aria-label="Chế độ mua vải">
+                    <button type="button" id="buyModeBuy" onclick="setBuyMode('buy')" role="tab"
+                            class="py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center">
+                        <i class="fa-solid fa-bolt mr-1.5"></i> Mua ngay
+                    </button>
+                    <button type="button" id="buyModeAdd" onclick="setBuyMode('add')" role="tab"
+                            class="py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center">
+                        <i class="fa-solid fa-cart-plus mr-1.5"></i> Thêm vào giỏ
+                    </button>
+                </div>
+                <p id="buyModeHint" class="text-[11px] text-slate-500 leading-relaxed -mt-1">
+                    Đơn mua ngay được ghi nhận trực tiếp và cộng hoa hồng cho thợ may.
+                </p>
 
                 <div class="flex items-center gap-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200">
                     <img id="buyModalImg" src="" class="w-16 h-20 object-cover rounded-lg border border-slate-200 shadow-sm" alt="Mẫu vải">
@@ -858,8 +835,9 @@ $hasSession = $sessionUser !== null;
                 </div>
 
                 <div class="pt-2 flex gap-2">
-                    <button type="submit" class="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center">
-                        <i class="fa-solid fa-check-circle mr-2 text-emerald-400"></i> Xác nhận đặt mua vải ngay
+                    <button type="submit" id="buySubmitBtn" class="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center">
+                        <i id="buySubmitIcon" class="fa-solid fa-check-circle mr-2 text-emerald-400"></i>
+                        <span id="buySubmitLabel">Xác nhận đặt mua vải ngay</span>
                     </button>
                     <button type="button" onclick="closeBuyModal()" class="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-all">
                         Đóng
@@ -1015,8 +993,8 @@ $hasSession = $sessionUser !== null;
             const addCartBtn = document.getElementById('modalAddCartBtn');
             if (addCartBtn) {
                 addCartBtn.onclick = function() {
-                    addToCartItem(code, fabric, metric, donGia || 185000, img, document.getElementById('buyRefCode').value);
                     document.getElementById('detailModal').classList.add('hidden');
+                    openAffiliateBuyModal(title, img, code, fabric, donGia || 185000, metric, document.getElementById('buyRefCode').value, tailor, 'add');
                 };
             }
 
@@ -1024,7 +1002,7 @@ $hasSession = $sessionUser !== null;
         }
 
         // ==========================================
-        // QUẢN LÝ GIỎ HÀNG LOOKBOOK (KẾT NỐI MODULE 2)
+        // GIỎ HÀNG LOOKBOOK -> TRANG GIỎ HÀNG (localStorage)
         // ==========================================
         function getCart() {
             try { return JSON.parse(localStorage.getItem('aura_lookbook_cart') || '[]'); }
@@ -1032,144 +1010,123 @@ $hasSession = $sessionUser !== null;
         }
 
         function saveCart(cart) {
-            localStorage.setItem('aura_lookbook_cart', JSON.stringify(cart));
-            updateCartBadge();
+            try { localStorage.setItem('aura_lookbook_cart', JSON.stringify(cart)); } catch (e) {}
         }
 
-        function updateCartBadge() {
-            const cart = getCart();
-            const count = cart.length;
+        function syncCartBadge() {
             const badge = document.getElementById('cartCountBadge');
-            if (badge) {
-                badge.innerText = count;
-                badge.style.display = count > 0 ? 'inline-block' : 'none';
-            }
-            const headerCount = document.getElementById('cartModalHeaderCount');
-            if (headerCount) headerCount.innerText = count;
+            if (!badge) return;
+            const count = getCart().length;
+            badge.textContent = count > 99 ? '99+' : String(count);
         }
 
-        function addToCartItem(maVai, tenSP, dinhLuong, donGia, img, refCode) {
-            const cart = getCart();
-            let soMet = 2.4;
-            if (dinhLuong) {
-                const match = dinhLuong.match(/([0-9]+(\.[0-9]+)?)/);
-                if (match) soMet = parseFloat(match[0]);
-            }
-            const tongTien = Math.round(soMet * donGia);
+        window.addEventListener('storage', function (event) {
+            if (event.key === 'aura_lookbook_cart') syncCartBadge();
+        });
 
-            cart.push({ maVai, tenSP, soMet, dinhLuong, donGia, tongTien, img, refCode: refCode || '' });
-            saveCart(cart);
-            showQuickToast(`🛒 Đã thêm ${soMet}m vải ${maVai} (${tenSP}) vào giỏ hàng!`);
+        document.addEventListener('DOMContentLoaded', syncCartBadge);
+        syncCartBadge();
+
+        // Chế độ trong modal mua vải: 'buy' = mua ngay, 'add' = thêm vào giỏ
+        let currentBuyMode = 'buy';
+        let currentBuyItem = null;
+
+        function setBuyMode(mode) {
+            currentBuyMode = mode === 'add' ? 'add' : 'buy';
+            const isAdd = currentBuyMode === 'add';
+            const buyBtn = document.getElementById('buyModeBuy');
+            const addBtn = document.getElementById('buyModeAdd');
+            const hint = document.getElementById('buyModeHint');
+            const label = document.getElementById('buySubmitLabel');
+            const icon = document.getElementById('buySubmitIcon');
+
+            if (buyBtn) {
+                buyBtn.className = 'py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center '
+                    + (isAdd ? 'text-slate-600 hover:text-slate-900' : 'bg-white text-slate-900 shadow-sm');
+            }
+            if (addBtn) {
+                addBtn.className = 'py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center '
+                    + (isAdd ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600 hover:text-slate-900');
+            }
+            if (hint) {
+                hint.textContent = isAdd
+                    ? 'Vải sẽ được thêm vào giỏ. Bạn có thể chọn nhiều mẫu rồi thanh toán một lần.'
+                    : 'Chuyển đến trang điền thông tin nhận hàng và chọn phương thức thanh toán.';
+            }
+            if (label) label.textContent = isAdd ? 'Thêm vào giỏ hàng' : 'Mua ngay & điền thông tin nhận hàng';
+            if (icon) icon.className = 'mr-2 ' + (isAdd ? 'fa-solid fa-cart-plus text-emerald-400' : 'fa-solid fa-check-circle text-emerald-400');
         }
 
-        function removeFromCart(index) {
+        function addCurrentItemToCart() {
+            if (!currentBuyItem) return;
+            const input = document.getElementById('buySoMet');
+            const soMet = Math.max(0.5, Math.round((parseFloat(input && input.value) || 0.5) * 10) / 10);
             const cart = getCart();
-            if (index >= 0 && index < cart.length) {
-                cart.splice(index, 1);
-                saveCart(cart);
-                renderCartItems();
-            }
-        }
-
-        function renderCartItems() {
-            const cart = getCart();
-            const listEl = document.getElementById('cartItemsList');
-            const totalEl = document.getElementById('cartTotalPrice');
-            if (!listEl) return;
-
-            if (cart.length === 0) {
-                listEl.innerHTML = `
-                    <div class="py-12 text-center text-slate-400">
-                        <i class="fa-solid fa-basket-shopping text-4xl mb-2 text-slate-300"></i>
-                        <div class="font-bold text-slate-700 text-sm">Giỏ hàng Lookbook đang trống</div>
-                        <div class="text-xs text-slate-400 mt-1">Hãy bấm "+ Giỏ" ở các mẫu Lookbook để thêm vải may đo nhé!</div>
-                    </div>
-                `;
-                if (totalEl) totalEl.innerText = '0₫';
-                return;
-            }
-
-            let total = 0;
-            let html = '';
-            cart.forEach((item, idx) => {
-                total += item.tongTien;
-                html += `
-                    <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-                        <div class="flex items-center space-x-3 min-w-0">
-                            <img src="${item.img}" class="w-12 h-14 object-cover rounded-lg border border-slate-200" alt="${item.tenSP}">
-                            <div class="min-w-0">
-                                <div class="font-bold text-slate-900 truncate">${item.maVai} ${item.tenSP}</div>
-                                <div class="text-slate-500 text-[11px]">Định lượng: <strong class="text-slate-800">${item.soMet}m</strong> • ${new Intl.NumberFormat('vi-VN').format(item.donGia)}₫/m</div>
-                                <div class="text-[10px] text-indigo-600 font-semibold flex items-center mt-0.5">
-                                    <i class="fa-solid fa-tag mr-1 text-[9px]"></i> Ref: ${item.refCode} (Hoa hồng 5%)
-                                </div>
-                            </div>
-                        </div>
-                        <div class="text-right whitespace-nowrap pl-2">
-                            <div class="font-extrabold text-slate-900 text-sm">${new Intl.NumberFormat('vi-VN').format(item.tongTien)}₫</div>
-                            <button onclick="removeFromCart(${idx})" class="text-[11px] text-rose-500 hover:text-rose-700 font-semibold mt-1">
-                                <i class="fa-solid fa-trash-can mr-0.5"></i> Xóa
-                            </button>
-                        </div>
-                    </div>
-                `;
+            cart.push({
+                maVai: currentBuyItem.maVai,
+                tenSP: currentBuyItem.tenSP,
+                soMet: soMet,
+                dinhLuong: currentBuyItem.dinhLuong,
+                donGia: currentBuyItem.donGia,
+                img: currentBuyItem.img,
+                refCode: currentBuyItem.refCode || '',
+                mauSac: currentBuyItem.mauSac || '',
+                chatLieuSize: currentBuyItem.chatLieuSize || '',
+                wholesaleThreshold: 15,
+                wholesaleDiscount: 0.10,
+                checked: true
             });
-
-            listEl.innerHTML = html;
-            if (totalEl) totalEl.innerText = new Intl.NumberFormat('vi-VN').format(total) + '₫';
+            saveCart(cart);
+            syncCartBadge();
+            closeBuyModal();
+            showQuickToast(`Đã thêm ${soMet}m vải ${currentBuyItem.maVai} vào giỏ hàng.`);
         }
 
-        function openCartModal() {
-            renderCartItems();
-            document.getElementById('cartModal').classList.remove('hidden');
-        }
+        function buyNowCurrentItem() {
+            if (!currentBuyItem) return;
+            const input = document.getElementById('buySoMet');
+            const soMet = Math.max(0.5, Math.round((parseFloat(input && input.value) || 0.5) * 10) / 10);
+            const item = {
+                maVai: currentBuyItem.maVai,
+                tenSP: currentBuyItem.tenSP,
+                soMet: soMet,
+                dinhLuong: currentBuyItem.dinhLuong,
+                donGia: currentBuyItem.donGia,
+                img: currentBuyItem.img,
+                refCode: currentBuyItem.refCode || '',
+                mauSac: currentBuyItem.mauSac || '',
+                chatLieuSize: currentBuyItem.chatLieuSize || '',
+                wholesaleThreshold: 15,
+                wholesaleDiscount: 0.10,
+                checked: true
+            };
 
-        function closeCartModal() { document.getElementById('cartModal').classList.add('hidden'); }
-
-        async function checkoutCart() {
-            const cart = getCart();
-            if (cart.length === 0) {
-                alert('Giỏ hàng của bạn đang trống! Hãy chọn ít nhất 1 mẫu vải trước khi thanh toán.');
+            try {
+                localStorage.setItem('aura_checkout_cart', JSON.stringify({
+                    items: [item],
+                    createdAt: Date.now()
+                }));
+            } catch (e) {
+                alert('Trình duyệt không cho lưu giỏ hàng. Vui lòng thử lại.');
                 return;
             }
 
-            let completed = 0;
-            let commissionTotal = 0;
-            let failureMessage = '';
-            for (const item of cart) {
-                const body = new URLSearchParams({
-                    action: 'buy_via_affiliate',
-                    refCode: item.refCode || '',
-                    maVaiCode: item.maVai,
-                    soMet: String(item.soMet),
-                    donGia: String(item.donGia)
-                });
-                try {
-                    const response = await fetch(window.location.pathname + window.location.search, {
-                        method: 'POST',
-                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
-                        body
-                    });
-                    const result = await response.json();
-                    if (!response.ok || !result.success) {
-                        failureMessage = result.message || 'Không thể ghi nhận đơn hàng.';
-                        break;
-                    }
-                    completed++;
-                    commissionTotal += Number(result.hoaHong || 0);
-                } catch (error) {
-                    failureMessage = 'Không kết nối được máy chủ để hoàn tất đơn hàng.';
-                    break;
-                }
-            }
+            closeBuyModal();
+            window.location.href = '/index.php?module=checkout';
+        }
 
-            if (completed > 0) saveCart(cart.slice(completed));
-            if (failureMessage) {
-                showQuickToast(`Đã hoàn tất ${completed}/${cart.length} đơn. ${failureMessage}`);
-            } else {
-                closeCartModal();
-                showQuickToast(`Đặt mua thành công ${completed} sản phẩm. Hoa hồng ${new Intl.NumberFormat('vi-VN').format(commissionTotal)}₫ đã cộng vào ví thợ may.`);
-            }
+        function bindBuyForm() {
+            const form = document.getElementById('buyForm');
+            if (!form || form.dataset.bound === '1') return;
+            form.dataset.bound = '1';
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                if (currentBuyMode === 'add') {
+                    addCurrentItemToCart();
+                } else {
+                    buyNowCurrentItem();
+                }
+            });
         }
 
         function showQuickToast(msg) {
@@ -1185,7 +1142,9 @@ $hasSession = $sessionUser !== null;
             setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
 
-        document.addEventListener('DOMContentLoaded', updateCartBadge);
+        document.addEventListener('DOMContentLoaded', function () {
+            bindBuyForm();
+        });
 
         function openTailorOrdersModal() { document.getElementById('tailorOrdersModal').classList.remove('hidden'); }
         function closeTailorOrdersModal() { document.getElementById('tailorOrdersModal').classList.add('hidden'); }
@@ -1219,7 +1178,7 @@ $hasSession = $sessionUser !== null;
 
         let currentBuyDonGia = 185000;
 
-        function openAffiliateBuyModal(title, img, fabricCode, fabricName, donGia, metricStr, refCode, tailorName) {
+        function openAffiliateBuyModal(title, img, fabricCode, fabricName, donGia, metricStr, refCode, tailorName, mode) {
             document.getElementById('buyModalTitle').innerText = title;
             document.getElementById('buyModalImg').src = img;
             document.getElementById('buyModalFabric').innerText = fabricCode + ' - ' + fabricName;
@@ -1238,6 +1197,17 @@ $hasSession = $sessionUser !== null;
             if (refCode) document.getElementById('buyRefCode').value = refCode;
             if (tailorName) document.getElementById('buyTailorNameDisplay').innerText = tailorName;
 
+            currentBuyItem = {
+                maVai: fabricCode,
+                tenSP: fabricName,
+                dinhLuong: metricStr || '',
+                donGia: donGia,
+                img: img,
+                refCode: refCode || ''
+            };
+
+            setBuyMode(mode || 'buy');
+            bindBuyForm();
             calculateBuyTotal();
             document.getElementById('buyModal').classList.remove('hidden');
         }
